@@ -14,6 +14,8 @@ type Issue = {
   repository_url: string;
   repository_name: string;
   stars_count: number;
+  language: string | null;
+  is_assigned: boolean;
 };
 
 type LoaderData = {
@@ -27,6 +29,8 @@ export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
   const minStars = parseInt(url.searchParams.get("minStars") || "0", 10);
   const maxStars = parseInt(url.searchParams.get("maxStars") || "1000000", 10);
+  const language = url.searchParams.get("language") || "";
+  const isAssigned = url.searchParams.get("isAssigned") === "true";
   const cursor = url.searchParams.get("cursor") || null;
 
   const githubToken = process.env.GITHUB_API_KEY;
@@ -66,6 +70,12 @@ export const loader: LoaderFunction = async ({ request }) => {
                 nameWithOwner
                 url
                 stargazerCount
+                primaryLanguage {
+                  name
+                }
+              }
+              assignees(first: 1) {
+                totalCount
               }
             }
           }
@@ -73,8 +83,12 @@ export const loader: LoaderFunction = async ({ request }) => {
       }
     `;
 
+    let queryString = 'is:open is:issue label:"good first issue"';
+    if (language) queryString += ` language:${language}`;
+    if (!isAssigned) queryString += " no:assignee";
+
     const variables = {
-      queryString: 'is:open is:issue label:"good first issue"',
+      queryString,
       cursor: cursor,
     };
 
@@ -94,6 +108,8 @@ export const loader: LoaderFunction = async ({ request }) => {
         repository_url: issue.repository.url,
         repository_name: issue.repository.nameWithOwner,
         stars_count: issue.repository.stargazerCount,
+        language: issue.repository.primaryLanguage?.name || null,
+        is_assigned: issue.assignees.totalCount > 0,
       }));
 
     return json({
@@ -119,6 +135,8 @@ export default function Index() {
   const { issues, error, hasNextPage, endCursor } = useLoaderData<LoaderData>();
   const [minStars, setMinStars] = useState("0");
   const [maxStars, setMaxStars] = useState("1000000");
+  const [language, setLanguage] = useState("");
+  const [isAssigned, setIsAssigned] = useState(false);
   const submit = useSubmit();
   const transition = useTransition();
 
@@ -126,6 +144,8 @@ export default function Index() {
     const url = new URL(window.location.href);
     setMinStars(url.searchParams.get("minStars") || "0");
     setMaxStars(url.searchParams.get("maxStars") || "1000000");
+    setLanguage(url.searchParams.get("language") || "");
+    setIsAssigned(url.searchParams.get("isAssigned") === "true");
   }, []);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -141,7 +161,7 @@ export default function Index() {
         GitHub Good First Issues Finder
       </h1>
       <Form method="get" onSubmit={handleSubmit} className="mb-8">
-        <div className="flex space-x-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label
               htmlFor="minStars"
@@ -174,15 +194,48 @@ export default function Index() {
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             />
           </div>
-          <div className="flex items-end">
-            <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              disabled={transition.state === "submitting"}
+          <div>
+            <label
+              htmlFor="language"
+              className="block text-sm font-medium text-gray-700"
             >
-              {transition.state === "submitting" ? "Filtering..." : "Filter"}
-            </button>
+              Language
+            </label>
+            <input
+              type="text"
+              id="language"
+              name="language"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+              placeholder="e.g. JavaScript"
+            />
           </div>
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="isAssigned"
+              name="isAssigned"
+              checked={isAssigned}
+              onChange={(e) => setIsAssigned(e.target.checked)}
+              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+            />
+            <label
+              htmlFor="isAssigned"
+              className="ml-2 block text-sm text-gray-900"
+            >
+              Include Assigned Issues
+            </label>
+          </div>
+        </div>
+        <div className="mt-4">
+          <button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            disabled={transition.state === "submitting"}
+          >
+            {transition.state === "submitting" ? "Filtering..." : "Filter"}
+          </button>
         </div>
       </Form>
 
@@ -208,6 +261,8 @@ export default function Index() {
                     <div className="sm:flex">
                       <p className="flex items-center text-sm text-gray-500">
                         {issue.repository_name} • ⭐ {issue.stars_count}
+                        {issue.language && ` • ${issue.language}`}
+                        {issue.is_assigned && " • Assigned"}
                       </p>
                     </div>
                     <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
@@ -227,7 +282,7 @@ export default function Index() {
       <div className="flex justify-end">
         {hasNextPage && (
           <Link
-            to={`?minStars=${minStars}&maxStars=${maxStars}&cursor=${endCursor}`}
+            to={`?minStars=${minStars}&maxStars=${maxStars}&language=${language}&isAssigned=${isAssigned}&cursor=${endCursor}`}
             className="px-3 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300"
           >
             Load More
