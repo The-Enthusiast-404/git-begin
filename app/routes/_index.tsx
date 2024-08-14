@@ -3,6 +3,13 @@ import { json, LoaderFunction } from "@remix-run/node";
 import { useLoaderData, useSubmit, Form, Link } from "@remix-run/react";
 import { graphql } from "@octokit/graphql";
 import { useState, useEffect, useTransition } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Star, Calendar, Code } from "lucide-react";
 
 const ISSUES_PER_PAGE = 10;
 
@@ -151,144 +158,141 @@ export default function Index() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    formData.delete("cursor"); // Reset cursor when applying new filters
+    formData.delete("cursor");
     submit(formData, { method: "get" });
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-4">
+      <h1 className="text-3xl font-bold mb-6 text-center">
         GitHub Good First Issues Finder
       </h1>
-      <Form method="get" onSubmit={handleSubmit} className="mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div>
-            <label
-              htmlFor="minStars"
-              className="block text-sm font-medium text-gray-700"
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Filter Issues</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form method="get" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="minStars" className="text-sm font-medium">
+                  Min Stars
+                </label>
+                <Input
+                  type="number"
+                  id="minStars"
+                  name="minStars"
+                  value={minStars}
+                  onChange={(e) => setMinStars(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="maxStars" className="text-sm font-medium">
+                  Max Stars
+                </label>
+                <Input
+                  type="number"
+                  id="maxStars"
+                  name="maxStars"
+                  value={maxStars}
+                  onChange={(e) => setMaxStars(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="language" className="text-sm font-medium">
+                  Language
+                </label>
+                <Input
+                  type="text"
+                  id="language"
+                  name="language"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  placeholder="e.g. JavaScript"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isAssigned"
+                  name="isAssigned"
+                  checked={isAssigned}
+                  onCheckedChange={(checked) =>
+                    setIsAssigned(checked as boolean)
+                  }
+                />
+                <label
+                  htmlFor="isAssigned"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Include Assigned Issues
+                </label>
+              </div>
+            </div>
+            <Button
+              type="submit"
+              className="mt-4"
+              disabled={transition.state === "submitting"}
             >
-              Min Stars
-            </label>
-            <input
-              type="number"
-              id="minStars"
-              name="minStars"
-              value={minStars}
-              onChange={(e) => setMinStars(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="maxStars"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Max Stars
-            </label>
-            <input
-              type="number"
-              id="maxStars"
-              name="maxStars"
-              value={maxStars}
-              onChange={(e) => setMaxStars(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="language"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Language
-            </label>
-            <input
-              type="text"
-              id="language"
-              name="language"
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-              placeholder="e.g. JavaScript"
-            />
-          </div>
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="isAssigned"
-              name="isAssigned"
-              checked={isAssigned}
-              onChange={(e) => setIsAssigned(e.target.checked)}
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-            />
-            <label
-              htmlFor="isAssigned"
-              className="ml-2 block text-sm text-gray-900"
-            >
-              Include Assigned Issues
-            </label>
-          </div>
-        </div>
-        <div className="mt-4">
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            disabled={transition.state === "submitting"}
+              {transition.state === "submitting" ? "Filtering..." : "Filter"}
+            </Button>
+          </Form>
+        </CardContent>
+      </Card>
+
+      {error && (
+        <Card className="mb-4 bg-red-50">
+          <CardContent className="text-red-500 p-4">Error: {error}</CardContent>
+        </Card>
+      )}
+
+      <div className="space-y-4">
+        {issues.map((issue) => (
+          <Card
+            key={issue.id}
+            className="hover:shadow-lg transition-shadow duration-300"
           >
-            {transition.state === "submitting" ? "Filtering..." : "Filter"}
-          </button>
-        </div>
-      </Form>
-
-      {error && <div className="text-red-500 mb-4">Error: {error}</div>}
-
-      <div className="bg-white shadow overflow-hidden sm:rounded-md mb-4">
-        <ul className="divide-y divide-gray-200">
-          {issues.map((issue) => (
-            <li key={issue.id}>
-              <a href={issue.html_url} className="block hover:bg-gray-50">
-                <div className="px-4 py-4 sm:px-6">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-indigo-600 truncate">
-                      {issue.title}
-                    </p>
-                    <div className="ml-2 flex-shrink-0 flex">
-                      <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        Good First Issue
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-2 sm:flex sm:justify-between">
-                    <div className="sm:flex">
-                      <p className="flex items-center text-sm text-gray-500">
-                        {issue.repository_name} • ⭐ {issue.stars_count}
-                        {issue.language && ` • ${issue.language}`}
-                        {issue.is_assigned && " • Assigned"}
-                      </p>
-                    </div>
-                    <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                      <p>
-                        Created on{" "}
-                        {new Date(issue.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </a>
-            </li>
-          ))}
-        </ul>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <a
+                  href={issue.html_url}
+                  className="text-lg font-semibold text-blue-600 hover:underline truncate max-w-[80%]"
+                >
+                  {issue.title}
+                </a>
+                <Badge variant="secondary">Good First Issue</Badge>
+              </div>
+              <Separator className="my-4" />
+              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                <span className="flex items-center">
+                  <Star className="w-4 h-4 mr-1" /> {issue.stars_count}
+                </span>
+                <span className="flex items-center">
+                  <Code className="w-4 h-4 mr-1" /> {issue.language || "N/A"}
+                </span>
+                <span className="flex items-center">
+                  <Calendar className="w-4 h-4 mr-1" />{" "}
+                  {new Date(issue.created_at).toLocaleDateString()}
+                </span>
+                {issue.is_assigned && <Badge variant="outline">Assigned</Badge>}
+              </div>
+              <p className="mt-2 text-sm text-gray-600">
+                {issue.repository_name}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      <div className="flex justify-end">
-        {hasNextPage && (
+      {hasNextPage && (
+        <div className="flex justify-center mt-6">
           <Link
             to={`?minStars=${minStars}&maxStars=${maxStars}&language=${language}&isAssigned=${isAssigned}&cursor=${endCursor}`}
-            className="px-3 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             Load More
           </Link>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
