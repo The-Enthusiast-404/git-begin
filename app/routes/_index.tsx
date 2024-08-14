@@ -1,17 +1,22 @@
-// app/routes/index.tsx
 import { json, LoaderFunction } from "@remix-run/node";
-import { useLoaderData, useSubmit, Form, Link } from "@remix-run/react";
+import {
+  useLoaderData,
+  useSubmit,
+  Form,
+  Link,
+  useNavigation,
+} from "@remix-run/react";
 import { graphql } from "@octokit/graphql";
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Star, Calendar, Code } from "lucide-react";
+import { Star, Calendar, Code, Tag, MessageSquare } from "lucide-react";
 
-const ISSUES_PER_PAGE = 10;
+const ISSUES_PER_PAGE = 30;
 
 type Issue = {
   id: string;
@@ -23,6 +28,8 @@ type Issue = {
   stars_count: number;
   language: string | null;
   is_assigned: boolean;
+  labels: string[];
+  comments_count: number; // New field
 };
 
 type LoaderData = {
@@ -63,7 +70,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   try {
     const query = `
       query($queryString: String!, $cursor: String) {
-        search(query: $queryString, type: ISSUE, first: 100, after: $cursor) {
+        search(query: $queryString, type: ISSUE, first: ${ISSUES_PER_PAGE}, after: $cursor) {
           pageInfo {
             hasNextPage
             endCursor
@@ -82,6 +89,14 @@ export const loader: LoaderFunction = async ({ request }) => {
                 }
               }
               assignees(first: 1) {
+                totalCount
+              }
+              labels(first: 10) {
+                nodes {
+                  name
+                }
+              }
+              comments {
                 totalCount
               }
             }
@@ -106,7 +121,6 @@ export const loader: LoaderFunction = async ({ request }) => {
         const stars = issue.repository.stargazerCount;
         return stars >= minStars && stars <= maxStars;
       })
-      .slice(0, ISSUES_PER_PAGE)
       .map((issue: any) => ({
         id: issue.url,
         title: issue.title,
@@ -117,6 +131,8 @@ export const loader: LoaderFunction = async ({ request }) => {
         stars_count: issue.repository.stargazerCount,
         language: issue.repository.primaryLanguage?.name || null,
         is_assigned: issue.assignees.totalCount > 0,
+        labels: issue.labels.nodes.map((label: any) => label.name),
+        comments_count: issue.comments.totalCount, // New field
       }));
 
     return json({
@@ -129,7 +145,9 @@ export const loader: LoaderFunction = async ({ request }) => {
     return json(
       {
         issues: [],
-        error: "Failed to fetch issues",
+        error:
+          "Failed to fetch issues: " +
+          (error instanceof Error ? error.message : String(error)),
         hasNextPage: false,
         endCursor: null,
       },
@@ -144,8 +162,9 @@ export default function Index() {
   const [maxStars, setMaxStars] = useState("1000000");
   const [language, setLanguage] = useState("");
   const [isAssigned, setIsAssigned] = useState(false);
+  const [allIssues, setAllIssues] = useState<Issue[]>([]);
   const submit = useSubmit();
-  const transition = useTransition();
+  const navigation = useNavigation();
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -155,12 +174,32 @@ export default function Index() {
     setIsAssigned(url.searchParams.get("isAssigned") === "true");
   }, []);
 
+  useEffect(() => {
+    if (issues.length > 0) {
+      setAllIssues((prev) => [...prev, ...issues]);
+    }
+  }, [issues]);
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     formData.delete("cursor");
+    setAllIssues([]); // Reset all issues when submitting a new search
     submit(formData, { method: "get" });
   };
+
+  const handleLoadMore = () => {
+    const formData = new FormData();
+    formData.set("minStars", minStars);
+    formData.set("maxStars", maxStars);
+    formData.set("language", language);
+    formData.set("isAssigned", isAssigned.toString());
+    formData.set("cursor", endCursor || "");
+    submit(formData, { method: "get" });
+  };
+
+  const isLoading =
+    navigation.state === "loading" || navigation.state === "submitting";
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -228,12 +267,8 @@ export default function Index() {
                 </label>
               </div>
             </div>
-            <Button
-              type="submit"
-              className="mt-4"
-              disabled={transition.state === "submitting"}
-            >
-              {transition.state === "submitting" ? "Filtering..." : "Filter"}
+            <Button type="submit" className="mt-4" disabled={isLoading}>
+              {isLoading ? "Filtering..." : "Filter"}
             </Button>
           </Form>
         </CardContent>
@@ -245,8 +280,16 @@ export default function Index() {
         </Card>
       )}
 
+      {allIssues.length === 0 && !error && (
+        <Card className="mb-4 bg-yellow-50">
+          <CardContent className="text-yellow-700 p-4">
+            No issues found matching the current criteria.
+          </CardContent>
+        </Card>
+      )}
+
       <div className="space-y-4">
-        {issues.map((issue) => (
+        {allIssues.map((issue) => (
           <Card
             key={issue.id}
             className="hover:shadow-lg transition-shadow duration-300"
@@ -273,6 +316,13 @@ export default function Index() {
                   <Calendar className="w-4 h-4 mr-1" />{" "}
                   {new Date(issue.created_at).toLocaleDateString()}
                 </span>
+                <span className="flex items-center">
+                  <Tag className="w-4 h-4 mr-1" /> {issue.labels.join(", ")}
+                </span>
+                <span className="flex items-center">
+                  <MessageSquare className="w-4 h-4 mr-1" />{" "}
+                  {issue.comments_count}
+                </span>
                 {issue.is_assigned && <Badge variant="outline">Assigned</Badge>}
               </div>
               <p className="mt-2 text-sm text-gray-600">
@@ -285,12 +335,13 @@ export default function Index() {
 
       {hasNextPage && (
         <div className="flex justify-center mt-6">
-          <Link
-            to={`?minStars=${minStars}&maxStars=${maxStars}&language=${language}&isAssigned=${isAssigned}&cursor=${endCursor}`}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          <Button
+            onClick={handleLoadMore}
+            disabled={isLoading}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
-            Load More
-          </Link>
+            {isLoading ? "Loading..." : "Load More"}
+          </Button>
         </div>
       )}
     </div>
