@@ -2,14 +2,16 @@ import { json, LoaderFunction } from "@remix-run/node";
 import { useLoaderData, useSubmit, useNavigation } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { LoaderData, FilterParams, Service } from "../types";
 import { fetchGitHubIssues } from "../services/github";
+import { fetchGitLabIssues } from "../services/gitlab";
 import { FilterForm } from "../components/FilterForm";
 import { IssueCard } from "../components/IssueCard";
-import { FilterParams, LoaderData } from "~/types";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
   const params: FilterParams = {
+    service: (url.searchParams.get("service") || "github") as Service,
     minStars: parseInt(url.searchParams.get("minStars") || "0", 10),
     maxStars: parseInt(url.searchParams.get("maxStars") || "1000000", 10),
     language: url.searchParams.get("language") || "",
@@ -18,8 +20,11 @@ export const loader: LoaderFunction = async ({ request }) => {
   };
 
   try {
-    const data = await fetchGitHubIssues(params);
-    return json(data);
+    const data =
+      params.service === "github"
+        ? await fetchGitHubIssues(params)
+        : await fetchGitLabIssues(params);
+    return json({ ...data, service: params.service });
   } catch (error) {
     console.error("Error fetching issues:", error);
     return json(
@@ -30,6 +35,7 @@ export const loader: LoaderFunction = async ({ request }) => {
           (error instanceof Error ? error.message : String(error)),
         hasNextPage: false,
         endCursor: null,
+        service: params.service,
       },
       { status: 500 }
     );
@@ -37,7 +43,14 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function Index() {
-  const { issues, error, hasNextPage, endCursor } = useLoaderData<LoaderData>();
+  const {
+    issues,
+    error,
+    hasNextPage,
+    endCursor,
+    service: initialService,
+  } = useLoaderData<LoaderData & { service: Service }>();
+  const [service, setService] = useState<Service>(initialService);
   const [minStars, setMinStars] = useState("0");
   const [maxStars, setMaxStars] = useState("1000000");
   const [language, setLanguage] = useState("");
@@ -48,6 +61,7 @@ export default function Index() {
 
   useEffect(() => {
     const url = new URL(window.location.href);
+    setService((url.searchParams.get("service") || "github") as Service);
     setMinStars(url.searchParams.get("minStars") || "0");
     setMaxStars(url.searchParams.get("maxStars") || "1000000");
     setLanguage(url.searchParams.get("language") || "");
@@ -55,10 +69,8 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    if (issues.length > 0) {
-      setAllIssues((prev) => [...prev, ...issues]);
-    }
-  }, [issues]);
+    setAllIssues(issues);
+  }, [issues, service]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -70,11 +82,24 @@ export default function Index() {
 
   const handleLoadMore = () => {
     const formData = new FormData();
+    formData.set("service", service);
     formData.set("minStars", minStars);
     formData.set("maxStars", maxStars);
     formData.set("language", language);
     formData.set("isAssigned", isAssigned.toString());
     formData.set("cursor", endCursor || "");
+    submit(formData, { method: "get" });
+  };
+
+  const handleServiceChange = (newService: Service) => {
+    setService(newService);
+    const formData = new FormData();
+    formData.set("service", newService);
+    formData.set("minStars", minStars);
+    formData.set("maxStars", maxStars);
+    formData.set("language", language);
+    formData.set("isAssigned", isAssigned.toString());
+    setAllIssues([]);
     submit(formData, { method: "get" });
   };
 
@@ -84,14 +109,16 @@ export default function Index() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-center">
-        GitHub Beginner-Friendly Issues Finder
+        Beginner-Friendly Issues Finder
       </h1>
       <FilterForm
+        service={service}
         minStars={minStars}
         maxStars={maxStars}
         language={language}
         isAssigned={isAssigned}
         isLoading={isLoading}
+        onServiceChange={handleServiceChange}
         onMinStarsChange={setMinStars}
         onMaxStarsChange={setMaxStars}
         onLanguageChange={setLanguage}
@@ -113,7 +140,11 @@ export default function Index() {
 
       <div className="space-y-4">
         {allIssues.map((issue, index) => (
-          <IssueCard key={`${issue.id}-${index}`} issue={issue} />
+          <IssueCard
+            key={`${issue.id}-${index}`}
+            issue={issue}
+            service={service}
+          />
         ))}
       </div>
 

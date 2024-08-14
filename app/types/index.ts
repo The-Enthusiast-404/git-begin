@@ -19,7 +19,10 @@ export type LoaderData = {
   endCursor: string | null;
 };
 
+export type Service = "github" | "gitlab";
+
 export type FilterParams = {
+  service: Service;
   minStars: number;
   maxStars: number;
   language: string;
