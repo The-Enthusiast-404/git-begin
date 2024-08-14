@@ -1,5 +1,5 @@
 // app/routes/index.tsx
-import { json } from "@remix-run/node";
+import { json, LoaderFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { Octokit } from "@octokit/rest";
 
@@ -11,26 +11,47 @@ type Issue = {
   repository_url: string;
 };
 
-export async function loader() {
-  const octokit = new Octokit();
-  const response = await octokit.search.issuesAndPullRequests({
-    q: "is:issue is:open label:good-first-issue sort:created-desc",
-    per_page: 20,
-  });
+export const loader: LoaderFunction = async () => {
+  const githubToken = process.env.GITHUB_API_KEY;
+  if (!githubToken) {
+    throw new Error("GITHUB_TOKEN is not set in environment variables");
+  }
 
-  const issues = response.data.items.map((item: any) => ({
-    id: item.id,
-    title: item.title,
-    html_url: item.html_url,
-    created_at: item.created_at,
-    repository_url: item.repository_url,
-  }));
+  const octokit = new Octokit({ auth: githubToken });
 
-  return json({ issues });
-}
+  try {
+    const response = await octokit.search.issuesAndPullRequests({
+      q: "is:issue is:open label:good-first-issue sort:created-desc",
+      per_page: 20,
+    });
+
+    const issues = response.data.items.map((item: any) => ({
+      id: item.id,
+      title: item.title,
+      html_url: item.html_url,
+      created_at: item.created_at,
+      repository_url: item.repository_url,
+    }));
+
+    return json({ issues });
+  } catch (error) {
+    console.error("Error fetching issues:", error);
+    return json(
+      { issues: [], error: "Failed to fetch issues" },
+      { status: 500 }
+    );
+  }
+};
 
 export default function Index() {
-  const { issues } = useLoaderData<{ issues: Issue[] }>();
+  const { issues, error } = useLoaderData<{
+    issues: Issue[];
+    error?: string;
+  }>();
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
 
   return (
     <div className="bg-white shadow overflow-hidden sm:rounded-md">
