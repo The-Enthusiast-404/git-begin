@@ -9,6 +9,8 @@ type Issue = {
   html_url: string;
   created_at: string;
   repository_url: string;
+  repository_name: string;
+  stars_count: number;
 };
 
 export const loader: LoaderFunction = async () => {
@@ -25,13 +27,39 @@ export const loader: LoaderFunction = async () => {
       per_page: 20,
     });
 
-    const issues = response.data.items.map((item: any) => ({
-      id: item.id,
-      title: item.title,
-      html_url: item.html_url,
-      created_at: item.created_at,
-      repository_url: item.repository_url,
-    }));
+    const issues: Issue[] = await Promise.all(
+      response.data.items.map(async (item: any) => {
+        const repoUrl = new URL(item.repository_url);
+        const [, , owner, repo] = repoUrl.pathname.split("/");
+
+        try {
+          const repoResponse = await octokit.repos.get({ owner, repo });
+          return {
+            id: item.id,
+            title: item.title,
+            html_url: item.html_url,
+            created_at: item.created_at,
+            repository_url: item.repository_url,
+            repository_name: `${owner}/${repo}`,
+            stars_count: repoResponse.data.stargazers_count,
+          };
+        } catch (repoError) {
+          console.error(
+            `Error fetching repo details for ${owner}/${repo}:`,
+            repoError
+          );
+          return {
+            id: item.id,
+            title: item.title,
+            html_url: item.html_url,
+            created_at: item.created_at,
+            repository_url: item.repository_url,
+            repository_name: `${owner}/${repo}`,
+            stars_count: -1, // Use -1 to indicate an error in fetching stars
+          };
+        }
+      })
+    );
 
     return json({ issues });
   } catch (error) {
@@ -73,7 +101,10 @@ export default function Index() {
                 <div className="mt-2 sm:flex sm:justify-between">
                   <div className="sm:flex">
                     <p className="flex items-center text-sm text-gray-500">
-                      {new URL(issue.repository_url).pathname.slice(1)}
+                      {issue.repository_name}
+                      {issue.stars_count >= 0
+                        ? ` • ⭐ ${issue.stars_count}`
+                        : " • ⭐ N/A"}
                     </p>
                   </div>
                   <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
