@@ -3,7 +3,6 @@ import {
   useLoaderData,
   useSubmit,
   Form,
-  Link,
   useNavigation,
 } from "@remix-run/react";
 import { graphql } from "@octokit/graphql";
@@ -29,7 +28,7 @@ type Issue = {
   language: string | null;
   is_assigned: boolean;
   labels: string[];
-  comments_count: number; // New field
+  comments_count: number;
 };
 
 type LoaderData = {
@@ -69,45 +68,48 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   try {
     const query = `
-      query($queryString: String!, $cursor: String) {
-        search(query: $queryString, type: ISSUE, first: ${ISSUES_PER_PAGE}, after: $cursor) {
-          pageInfo {
-            hasNextPage
-            endCursor
-          }
-          nodes {
-            ... on Issue {
-              title
-              url
-              createdAt
-              repository {
-                nameWithOwner
+        query($queryString: String!, $cursor: String) {
+          search(query: $queryString, type: ISSUE, first: ${ISSUES_PER_PAGE}, after: $cursor) {
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+            nodes {
+              ... on Issue {
+                title
                 url
-                stargazerCount
-                primaryLanguage {
-                  name
+                createdAt
+                repository {
+                  nameWithOwner
+                  url
+                  stargazerCount
+                  primaryLanguage {
+                    name
+                  }
                 }
-              }
-              assignees(first: 1) {
-                totalCount
-              }
-              labels(first: 10) {
-                nodes {
-                  name
+                assignees(first: 1) {
+                  totalCount
                 }
-              }
-              comments {
-                totalCount
+                labels(first: 10) {
+                  nodes {
+                    name
+                  }
+                }
+                comments {
+                  totalCount
+                }
               }
             }
           }
         }
-      }
-    `;
+      `;
 
     let queryString = 'is:open is:issue label:"good first issue"';
     if (language) queryString += ` language:${language}`;
     if (!isAssigned) queryString += " no:assignee";
+    queryString += " sort:created-desc";
+
+    console.log("Query string:", queryString); // Log the query string
 
     const variables = {
       queryString,
@@ -115,6 +117,8 @@ export const loader: LoaderFunction = async ({ request }) => {
     };
 
     const response: any = await graphqlWithAuth(query, variables);
+
+    console.log("API Response:", JSON.stringify(response, null, 2)); // Log the full API response
 
     const filteredIssues = response.search.nodes
       .filter((issue: any) => {
@@ -132,8 +136,10 @@ export const loader: LoaderFunction = async ({ request }) => {
         language: issue.repository.primaryLanguage?.name || null,
         is_assigned: issue.assignees.totalCount > 0,
         labels: issue.labels.nodes.map((label: any) => label.name),
-        comments_count: issue.comments.totalCount, // New field
+        comments_count: issue.comments.totalCount,
       }));
+
+    console.log("Filtered Issues:", JSON.stringify(filteredIssues, null, 2)); // Log the filtered issues
 
     return json({
       issues: filteredIssues,
@@ -176,7 +182,12 @@ export default function Index() {
 
   useEffect(() => {
     if (issues.length > 0) {
-      setAllIssues((prev) => [...prev, ...issues]);
+      console.log("Received issues:", issues); // Log the received issues
+      setAllIssues((prev) => {
+        const newIssues = [...prev, ...issues];
+        console.log("Updated allIssues:", newIssues); // Log the updated allIssues
+        return newIssues;
+      });
     }
   }, [issues]);
 
@@ -184,7 +195,7 @@ export default function Index() {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     formData.delete("cursor");
-    setAllIssues([]); // Reset all issues when submitting a new search
+    setAllIssues([]);
     submit(formData, { method: "get" });
   };
 
@@ -201,10 +212,24 @@ export default function Index() {
   const isLoading =
     navigation.state === "loading" || navigation.state === "submitting";
 
+  const getBeginnerFriendlyLabel = (labels: string[]): string => {
+    const beginnerFriendlyLabels = [
+      "good first issue",
+      "quick wins",
+      "first timers only",
+      "up for grabs",
+    ];
+    return (
+      labels.find((label) =>
+        beginnerFriendlyLabels.includes(label.toLowerCase())
+      ) || "Beginner Friendly"
+    );
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-center">
-        GitHub Good First Issues Finder
+        GitHub Beginner-Friendly Issues Finder
       </h1>
       <Card className="mb-8">
         <CardHeader>
@@ -289,9 +314,9 @@ export default function Index() {
       )}
 
       <div className="space-y-4">
-        {allIssues.map((issue) => (
+        {allIssues.map((issue, index) => (
           <Card
-            key={issue.id}
+            key={`${issue.id}-${index}`}
             className="hover:shadow-lg transition-shadow duration-300"
           >
             <CardContent className="p-6">
@@ -302,7 +327,9 @@ export default function Index() {
                 >
                   {issue.title}
                 </a>
-                <Badge variant="secondary">Good First Issue</Badge>
+                <Badge variant="secondary">
+                  {getBeginnerFriendlyLabel(issue.labels)}
+                </Badge>
               </div>
               <Separator className="my-4" />
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
@@ -314,7 +341,7 @@ export default function Index() {
                 </span>
                 <span className="flex items-center">
                   <Calendar className="w-4 h-4 mr-1" />{" "}
-                  {new Date(issue.created_at).toLocaleDateString()}
+                  {new Date(issue.created_at).toLocaleString()}
                 </span>
                 <span className="flex items-center">
                   <Tag className="w-4 h-4 mr-1" /> {issue.labels.join(", ")}
