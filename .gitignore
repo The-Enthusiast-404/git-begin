@@ -6,3 +6,6 @@ node_modules
 
 # Escape Jetbrains files
 .idea
+
+# Escape eslintcache
+.eslintcache
