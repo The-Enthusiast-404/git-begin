@@ -1,3 +1,5 @@
+// _index.tsx
+
 import { json, LoaderFunction } from "@remix-run/node"
 import { useLoaderData, useSubmit, useNavigation } from "@remix-run/react"
 import { useState, useEffect } from "react"
@@ -70,7 +72,7 @@ export default function Index() {
   const [maxStars, setMaxStars] = useState("1000000")
   const [language, setLanguage] = useState("")
   const [isAssigned, setIsAssigned] = useState(false)
-  const [category, setCategory] = useState("")
+  const [category, setCategory] = useState("all")
   const [allIssues, setAllIssues] = useState(issues)
   const submit = useSubmit()
   const navigation = useNavigation()
@@ -137,7 +139,6 @@ export default function Index() {
       </h1>
       <FilterForm
         service={service}
-        // _index.tsx (continued)
         minStars={minStars}
         maxStars={maxStars}
         language={language}
@@ -161,7 +162,8 @@ export default function Index() {
 
       {allIssues.length === 0 && !error && (
         <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md">
-          No issues found matching the current criteria.
+          No issues found matching the current criteria. Try adjusting your
+          filters.
         </div>
       )}
 

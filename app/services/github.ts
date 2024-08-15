@@ -1,4 +1,5 @@
 // github.ts
+
 import { graphql } from "@octokit/graphql"
 import { Issue, FilterParams } from "../types"
 
@@ -56,31 +57,6 @@ export async function fetchGitHubIssues(params: FilterParams) {
   let queryString = 'is:open is:issue label:"good first issue"'
   if (params.language) queryString += ` language:${params.language}`
   if (!params.isAssigned) queryString += " no:assignee"
-  if (params.category && params.category !== "all") {
-    switch (params.category) {
-      case "web-dev":
-        queryString += " topic:web"
-        break
-      case "mobile-dev":
-        queryString += " topic:mobile"
-        break
-      case "data-science":
-        queryString += " topic:data-science"
-        break
-      case "machine-learning":
-        queryString += " topic:machine-learning"
-        break
-      case "devops":
-        queryString += " topic:devops"
-        break
-      case "cybersecurity":
-        queryString += " topic:security"
-        break
-      case "documentation":
-        queryString += " label:documentation"
-        break
-    }
-  }
   queryString += " sort:created-desc"
 
   const variables = {
@@ -90,7 +66,7 @@ export async function fetchGitHubIssues(params: FilterParams) {
 
   const response: any = await graphqlWithAuth(query, variables)
 
-  const filteredIssues = response.search.nodes
+  const issues: Issue[] = response.search.nodes
     .filter((issue: any) => {
       const stars = issue.repository.stargazerCount
       return stars >= params.minStars && stars <= params.maxStars
@@ -110,7 +86,7 @@ export async function fetchGitHubIssues(params: FilterParams) {
     }))
 
   return {
-    issues: filteredIssues,
+    issues,
     hasNextPage: response.search.pageInfo.hasNextPage,
     endCursor: response.search.pageInfo.endCursor,
   }
@@ -143,7 +119,7 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
             primaryLanguage {
               name
             }
-            issues(labels: ["good first issue"], states: OPEN, first: 5) {
+            issues(labels: ["good first issue"], states: OPEN, first: 5, orderBy: {field: CREATED_AT, direction: DESC}) {
               nodes {
                 title
                 url
@@ -229,8 +205,13 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
     )
     .filter((issue: Issue) => !params.isAssigned || issue.is_assigned)
 
+  const sortedIssues = issues.sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  )
+
   return {
-    issues,
+    issues: sortedIssues,
     hasNextPage: response.search.pageInfo.hasNextPage,
     endCursor: response.search.pageInfo.endCursor,
   }
