@@ -3,8 +3,14 @@ import { useLoaderData, useSubmit, useNavigation } from "@remix-run/react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { LoaderData, FilterParams, Service } from "../types"
-import { fetchGitHubIssues } from "../services/github"
-import { fetchGitLabIssues } from "../services/gitlab"
+import {
+  fetchGitHubIssues,
+  fetchGitHubIssuesByCategory,
+} from "../services/github"
+import {
+  fetchGitLabIssues,
+  fetchGitLabIssuesByCategory,
+} from "../services/gitlab"
 import { FilterForm } from "../components/FilterForm"
 import { IssueCard } from "../components/IssueCard"
 
@@ -17,13 +23,22 @@ export const loader: LoaderFunction = async ({ request }) => {
     language: url.searchParams.get("language") || "",
     isAssigned: url.searchParams.get("isAssigned") === "true",
     cursor: url.searchParams.get("cursor") || null,
+    category: url.searchParams.get("category") || "all",
   }
 
   try {
-    const data =
-      params.service === "github"
-        ? await fetchGitHubIssues(params)
-        : await fetchGitLabIssues(params)
+    let data
+    if (params.category && params.category !== "all") {
+      data =
+        params.service === "github"
+          ? await fetchGitHubIssuesByCategory(params)
+          : await fetchGitLabIssuesByCategory(params)
+    } else {
+      data =
+        params.service === "github"
+          ? await fetchGitHubIssues(params)
+          : await fetchGitLabIssues(params)
+    }
     return json({ ...data, service: params.service })
   } catch (error) {
     console.error("Error fetching issues:", error)
@@ -55,6 +70,7 @@ export default function Index() {
   const [maxStars, setMaxStars] = useState("1000000")
   const [language, setLanguage] = useState("")
   const [isAssigned, setIsAssigned] = useState(false)
+  const [category, setCategory] = useState("")
   const [allIssues, setAllIssues] = useState(issues)
   const submit = useSubmit()
   const navigation = useNavigation()
@@ -66,6 +82,7 @@ export default function Index() {
     setMaxStars(url.searchParams.get("maxStars") || "1000000")
     setLanguage(url.searchParams.get("language") || "")
     setIsAssigned(url.searchParams.get("isAssigned") === "true")
+    setCategory(url.searchParams.get("category") || "all")
   }, [])
 
   useEffect(() => {
@@ -76,6 +93,11 @@ export default function Index() {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
     formData.delete("cursor")
+    if (category === "all") {
+      formData.delete("category")
+    } else {
+      formData.set("category", category)
+    }
     setAllIssues([])
     submit(formData, { method: "get" })
   }
@@ -87,6 +109,7 @@ export default function Index() {
     formData.set("maxStars", maxStars)
     formData.set("language", language)
     formData.set("isAssigned", isAssigned.toString())
+    formData.set("category", category)
     formData.set("cursor", endCursor || "")
     submit(formData, { method: "get" })
   }
@@ -99,6 +122,7 @@ export default function Index() {
     formData.set("maxStars", maxStars)
     formData.set("language", language)
     formData.set("isAssigned", isAssigned.toString())
+    formData.set("category", category)
     setAllIssues([])
     submit(formData, { method: "get" })
   }
@@ -113,16 +137,19 @@ export default function Index() {
       </h1>
       <FilterForm
         service={service}
+        // _index.tsx (continued)
         minStars={minStars}
         maxStars={maxStars}
         language={language}
         isAssigned={isAssigned}
+        category={category}
         isLoading={isLoading}
         onServiceChange={handleServiceChange}
         onMinStarsChange={setMinStars}
         onMaxStarsChange={setMaxStars}
         onLanguageChange={setLanguage}
         onIsAssignedChange={setIsAssigned}
+        onCategoryChange={setCategory}
         onSubmit={handleSubmit}
       />
 

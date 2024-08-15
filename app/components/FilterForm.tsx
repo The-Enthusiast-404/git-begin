@@ -1,3 +1,5 @@
+// FilterForm.tsx
+import React from "react"
 import { Form } from "@remix-run/react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -5,6 +7,13 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Service } from "../types"
 
 const GitLabLogo = () => (
@@ -21,18 +30,31 @@ const GitLabLogo = () => (
   </svg>
 )
 
+const categories = [
+  { value: "all", label: "All Categories" },
+  { value: "web-dev", label: "Web Development" },
+  { value: "mobile-dev", label: "Mobile Development" },
+  { value: "data-science", label: "Data Science" },
+  { value: "machine-learning", label: "Machine Learning" },
+  { value: "devops", label: "DevOps" },
+  { value: "cybersecurity", label: "Cybersecurity" },
+  { value: "documentation", label: "Documentation" },
+]
+
 type FilterFormProps = {
   service: Service
   minStars: string
   maxStars: string
   language: string
   isAssigned: boolean
+  category: string
   isLoading: boolean
   onServiceChange: (value: Service) => void
   onMinStarsChange: (value: string) => void
   onMaxStarsChange: (value: string) => void
   onLanguageChange: (value: string) => void
   onIsAssignedChange: (value: boolean) => void
+  onCategoryChange: (value: string) => void
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
 }
 
@@ -42,12 +64,14 @@ export function FilterForm({
   maxStars,
   language,
   isAssigned,
+  category,
   isLoading,
   onServiceChange,
   onMinStarsChange,
   onMaxStarsChange,
   onLanguageChange,
   onIsAssignedChange,
+  onCategoryChange,
   onSubmit,
 }: FilterFormProps) {
   return (
@@ -136,6 +160,23 @@ export function FilterForm({
                       onChange={(e) => onLanguageChange(e.target.value)}
                       placeholder="e.g. JavaScript"
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="category" className="text-sm font-medium">
+                      Category
+                    </label>
+                    <Select value={category} onValueChange={onCategoryChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat.value} value={cat.value}>
+                            {cat.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
