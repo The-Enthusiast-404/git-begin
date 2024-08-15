@@ -1,12 +1,12 @@
-import { Issue } from "../types";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Star, Calendar, Code, Tag, MessageSquare } from "lucide-react";
+import { Issue } from "../types"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { Star, Calendar, Code, Tag, MessageSquare } from "lucide-react"
 
 type IssueCardProps = {
-  issue: Issue;
-};
+  issue: Issue
+}
 
 export function IssueCard({ issue }: IssueCardProps) {
   const getBeginnerFriendlyLabel = (labels: string[]): string => {
@@ -15,13 +15,13 @@ export function IssueCard({ issue }: IssueCardProps) {
       "quick wins",
       "first timers only",
       "up for grabs",
-    ];
+    ]
     return (
       labels.find((label) =>
         beginnerFriendlyLabels.includes(label.toLowerCase())
       ) || "Beginner Friendly"
-    );
-  };
+    )
+  }
 
   return (
     <Card className="hover:shadow-lg transition-shadow duration-300">
@@ -60,5 +60,5 @@ export function IssueCard({ issue }: IssueCardProps) {
         <p className="mt-2 text-sm text-gray-600">{issue.repository_name}</p>
       </CardContent>
     </Card>
-  );
+  )
 }
