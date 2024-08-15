@@ -1,11 +1,11 @@
-import { Form } from "@remix-run/react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GitHubLogoIcon } from "@radix-ui/react-icons";
-import { Service } from "../types";
+import { Form } from "@remix-run/react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { GitHubLogoIcon } from "@radix-ui/react-icons"
+import { Service } from "../types"
 
 const GitLabLogo = () => (
   <svg
@@ -19,22 +19,22 @@ const GitLabLogo = () => (
       fill="currentColor"
     />
   </svg>
-);
+)
 
 type FilterFormProps = {
-  service: Service;
-  minStars: string;
-  maxStars: string;
-  language: string;
-  isAssigned: boolean;
-  isLoading: boolean;
-  onServiceChange: (value: Service) => void;
-  onMinStarsChange: (value: string) => void;
-  onMaxStarsChange: (value: string) => void;
-  onLanguageChange: (value: string) => void;
-  onIsAssignedChange: (value: boolean) => void;
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-};
+  service: Service
+  minStars: string
+  maxStars: string
+  language: string
+  isAssigned: boolean
+  isLoading: boolean
+  onServiceChange: (value: Service) => void
+  onMinStarsChange: (value: string) => void
+  onMaxStarsChange: (value: string) => void
+  onLanguageChange: (value: string) => void
+  onIsAssignedChange: (value: boolean) => void
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
+}
 
 export function FilterForm({
   service,
@@ -163,5 +163,5 @@ export function FilterForm({
         </TabsContent>
       </Tabs>
     </div>
-  );
+  )
 }

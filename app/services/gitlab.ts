@@ -1,42 +1,42 @@
-import { Issue, FilterParams } from "../types";
+import { Issue, FilterParams } from "../types"
 
-const ISSUES_PER_PAGE = 30;
+const ISSUES_PER_PAGE = 30
 
 export async function fetchGitLabIssues(params: FilterParams) {
-  const gitlabToken = process.env.GITLAB_API_KEY;
+  const gitlabToken = process.env.GITLAB_API_KEY
   if (!gitlabToken) {
-    throw new Error("GITLAB_API_KEY is not set in environment variables");
+    throw new Error("GITLAB_API_KEY is not set in environment variables")
   }
 
-  const baseUrl = "https://gitlab.com/api/v4";
-  const labels = "good first issue,newcomer";
-  const state = "opened";
-  const scope = "all";
-  const orderBy = "created_at";
-  const sort = "desc";
+  const baseUrl = "https://gitlab.com/api/v4"
+  const labels = "good first issue,newcomer"
+  const state = "opened"
+  const scope = "all"
+  const orderBy = "created_at"
+  const sort = "desc"
 
-  let url = `${baseUrl}/issues?labels=${labels}&state=${state}&scope=${scope}&order_by=${orderBy}&sort=${sort}&per_page=${ISSUES_PER_PAGE}`;
+  let url = `${baseUrl}/issues?labels=${labels}&state=${state}&scope=${scope}&order_by=${orderBy}&sort=${sort}&per_page=${ISSUES_PER_PAGE}`
 
   if (params.language) {
-    url += `&search=${params.language}`;
+    url += `&search=${params.language}`
   }
   if (params.cursor) {
-    url += `&page=${params.cursor}`;
+    url += `&page=${params.cursor}`
   }
 
   const response = await fetch(url, {
     headers: {
       "PRIVATE-TOKEN": gitlabToken,
     },
-  });
+  })
 
   if (!response.ok) {
-    throw new Error(`GitLab API request failed: ${response.statusText}`);
+    throw new Error(`GitLab API request failed: ${response.statusText}`)
   }
 
-  const data = await response.json();
-  const totalPages = parseInt(response.headers.get("X-Total-Pages") || "1", 10);
-  const currentPage = parseInt(response.headers.get("X-Page") || "1", 10);
+  const data = await response.json()
+  const totalPages = parseInt(response.headers.get("X-Total-Pages") || "1", 10)
+  const currentPage = parseInt(response.headers.get("X-Page") || "1", 10)
 
   const issues: Issue[] = await Promise.all(
     data.map(async (issue: any) => {
@@ -47,8 +47,8 @@ export async function fetchGitLabIssues(params: FilterParams) {
             "PRIVATE-TOKEN": gitlabToken,
           },
         }
-      );
-      const projectData = await projectResponse.json();
+      )
+      const projectData = await projectResponse.json()
 
       return {
         id: issue.id.toString(),
@@ -62,19 +62,19 @@ export async function fetchGitLabIssues(params: FilterParams) {
         is_assigned: issue.assignees.length > 0,
         labels: issue.labels,
         comments_count: issue.user_notes_count,
-      };
+      }
     })
-  );
+  )
 
   const filteredIssues = issues.filter(
     (issue) =>
       issue.stars_count >= params.minStars &&
       issue.stars_count <= params.maxStars
-  );
+  )
 
   return {
     issues: filteredIssues,
     hasNextPage: currentPage < totalPages,
     endCursor: currentPage < totalPages ? (currentPage + 1).toString() : null,
-  };
+  }
 }

@@ -3,3 +3,9 @@ node_modules
 /.cache
 /build
 .env
+
+# Escape Jetbrains files
+.idea
+
+# Escape eslintcache
+.eslintcache

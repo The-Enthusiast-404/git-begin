@@ -1,15 +1,15 @@
-import { json, LoaderFunction } from "@remix-run/node";
-import { useLoaderData, useSubmit, useNavigation } from "@remix-run/react";
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { LoaderData, FilterParams, Service } from "../types";
-import { fetchGitHubIssues } from "../services/github";
-import { fetchGitLabIssues } from "../services/gitlab";
-import { FilterForm } from "../components/FilterForm";
-import { IssueCard } from "../components/IssueCard";
+import { json, LoaderFunction } from "@remix-run/node"
+import { useLoaderData, useSubmit, useNavigation } from "@remix-run/react"
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { LoaderData, FilterParams, Service } from "../types"
+import { fetchGitHubIssues } from "../services/github"
+import { fetchGitLabIssues } from "../services/gitlab"
+import { FilterForm } from "../components/FilterForm"
+import { IssueCard } from "../components/IssueCard"
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const url = new URL(request.url);
+  const url = new URL(request.url)
   const params: FilterParams = {
     service: (url.searchParams.get("service") || "github") as Service,
     minStars: parseInt(url.searchParams.get("minStars") || "0", 10),
@@ -17,16 +17,16 @@ export const loader: LoaderFunction = async ({ request }) => {
     language: url.searchParams.get("language") || "",
     isAssigned: url.searchParams.get("isAssigned") === "true",
     cursor: url.searchParams.get("cursor") || null,
-  };
+  }
 
   try {
     const data =
       params.service === "github"
         ? await fetchGitHubIssues(params)
-        : await fetchGitLabIssues(params);
-    return json({ ...data, service: params.service });
+        : await fetchGitLabIssues(params)
+    return json({ ...data, service: params.service })
   } catch (error) {
-    console.error("Error fetching issues:", error);
+    console.error("Error fetching issues:", error)
     return json(
       {
         issues: [],
@@ -38,9 +38,9 @@ export const loader: LoaderFunction = async ({ request }) => {
         service: params.service,
       },
       { status: 500 }
-    );
+    )
   }
-};
+}
 
 export default function Index() {
   const {
@@ -49,62 +49,62 @@ export default function Index() {
     hasNextPage,
     endCursor,
     service: initialService,
-  } = useLoaderData<LoaderData & { service: Service }>();
-  const [service, setService] = useState<Service>(initialService);
-  const [minStars, setMinStars] = useState("0");
-  const [maxStars, setMaxStars] = useState("1000000");
-  const [language, setLanguage] = useState("");
-  const [isAssigned, setIsAssigned] = useState(false);
-  const [allIssues, setAllIssues] = useState(issues);
-  const submit = useSubmit();
-  const navigation = useNavigation();
+  } = useLoaderData<LoaderData & { service: Service }>()
+  const [service, setService] = useState<Service>(initialService)
+  const [minStars, setMinStars] = useState("0")
+  const [maxStars, setMaxStars] = useState("1000000")
+  const [language, setLanguage] = useState("")
+  const [isAssigned, setIsAssigned] = useState(false)
+  const [allIssues, setAllIssues] = useState(issues)
+  const submit = useSubmit()
+  const navigation = useNavigation()
 
   useEffect(() => {
-    const url = new URL(window.location.href);
-    setService((url.searchParams.get("service") || "github") as Service);
-    setMinStars(url.searchParams.get("minStars") || "0");
-    setMaxStars(url.searchParams.get("maxStars") || "1000000");
-    setLanguage(url.searchParams.get("language") || "");
-    setIsAssigned(url.searchParams.get("isAssigned") === "true");
-  }, []);
+    const url = new URL(window.location.href)
+    setService((url.searchParams.get("service") || "github") as Service)
+    setMinStars(url.searchParams.get("minStars") || "0")
+    setMaxStars(url.searchParams.get("maxStars") || "1000000")
+    setLanguage(url.searchParams.get("language") || "")
+    setIsAssigned(url.searchParams.get("isAssigned") === "true")
+  }, [])
 
   useEffect(() => {
-    setAllIssues(issues);
-  }, [issues, service]);
+    setAllIssues(issues)
+  }, [issues, service])
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    formData.delete("cursor");
-    setAllIssues([]);
-    submit(formData, { method: "get" });
-  };
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    formData.delete("cursor")
+    setAllIssues([])
+    submit(formData, { method: "get" })
+  }
 
   const handleLoadMore = () => {
-    const formData = new FormData();
-    formData.set("service", service);
-    formData.set("minStars", minStars);
-    formData.set("maxStars", maxStars);
-    formData.set("language", language);
-    formData.set("isAssigned", isAssigned.toString());
-    formData.set("cursor", endCursor || "");
-    submit(formData, { method: "get" });
-  };
+    const formData = new FormData()
+    formData.set("service", service)
+    formData.set("minStars", minStars)
+    formData.set("maxStars", maxStars)
+    formData.set("language", language)
+    formData.set("isAssigned", isAssigned.toString())
+    formData.set("cursor", endCursor || "")
+    submit(formData, { method: "get" })
+  }
 
   const handleServiceChange = (newService: Service) => {
-    setService(newService);
-    const formData = new FormData();
-    formData.set("service", newService);
-    formData.set("minStars", minStars);
-    formData.set("maxStars", maxStars);
-    formData.set("language", language);
-    formData.set("isAssigned", isAssigned.toString());
-    setAllIssues([]);
-    submit(formData, { method: "get" });
-  };
+    setService(newService)
+    const formData = new FormData()
+    formData.set("service", newService)
+    formData.set("minStars", minStars)
+    formData.set("maxStars", maxStars)
+    formData.set("language", language)
+    formData.set("isAssigned", isAssigned.toString())
+    setAllIssues([])
+    submit(formData, { method: "get" })
+  }
 
   const isLoading =
-    navigation.state === "loading" || navigation.state === "submitting";
+    navigation.state === "loading" || navigation.state === "submitting"
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -160,5 +160,5 @@ export default function Index() {
         </div>
       )}
     </div>
-  );
+  )
 }

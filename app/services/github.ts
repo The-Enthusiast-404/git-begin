@@ -1,19 +1,19 @@
-import { graphql } from "@octokit/graphql";
-import { Issue, FilterParams } from "../types";
+import { graphql } from "@octokit/graphql"
+import { Issue, FilterParams } from "../types"
 
-const ISSUES_PER_PAGE = 30;
+const ISSUES_PER_PAGE = 30
 
 export async function fetchGitHubIssues(params: FilterParams) {
-  const githubToken = process.env.GITHUB_API_KEY;
+  const githubToken = process.env.GITHUB_API_KEY
   if (!githubToken) {
-    throw new Error("GITHUB_API_KEY is not set in environment variables");
+    throw new Error("GITHUB_API_KEY is not set in environment variables")
   }
 
   const graphqlWithAuth = graphql.defaults({
     headers: {
       authorization: `token ${githubToken}`,
     },
-  });
+  })
 
   const query = `
     query($queryString: String!, $cursor: String) {
@@ -50,24 +50,24 @@ export async function fetchGitHubIssues(params: FilterParams) {
         }
       }
     }
-  `;
+  `
 
-  let queryString = 'is:open is:issue label:"good first issue"';
-  if (params.language) queryString += ` language:${params.language}`;
-  if (!params.isAssigned) queryString += " no:assignee";
-  queryString += " sort:created-desc";
+  let queryString = 'is:open is:issue label:"good first issue"'
+  if (params.language) queryString += ` language:${params.language}`
+  if (!params.isAssigned) queryString += " no:assignee"
+  queryString += " sort:created-desc"
 
   const variables = {
     queryString,
     cursor: params.cursor,
-  };
+  }
 
-  const response: any = await graphqlWithAuth(query, variables);
+  const response: any = await graphqlWithAuth(query, variables)
 
   const filteredIssues = response.search.nodes
     .filter((issue: any) => {
-      const stars = issue.repository.stargazerCount;
-      return stars >= params.minStars && stars <= params.maxStars;
+      const stars = issue.repository.stargazerCount
+      return stars >= params.minStars && stars <= params.maxStars
     })
     .map((issue: any) => ({
       id: issue.url,
@@ -81,11 +81,11 @@ export async function fetchGitHubIssues(params: FilterParams) {
       is_assigned: issue.assignees.totalCount > 0,
       labels: issue.labels.nodes.map((label: any) => label.name),
       comments_count: issue.comments.totalCount,
-    }));
+    }))
 
   return {
     issues: filteredIssues,
     hasNextPage: response.search.pageInfo.hasNextPage,
     endCursor: response.search.pageInfo.endCursor,
-  };
+  }
 }
