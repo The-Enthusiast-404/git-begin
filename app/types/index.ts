@@ -30,4 +30,5 @@ export type FilterParams = {
   isAssigned: boolean
   cursor: string | null
   category: string // New field for category filter
+  framework: string
 }

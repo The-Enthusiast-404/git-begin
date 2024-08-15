@@ -1,4 +1,3 @@
-// FilterForm.tsx
 import React from "react"
 import { Form } from "@remix-run/react"
 import { Input } from "@/components/ui/input"
@@ -48,6 +47,7 @@ type FilterFormProps = {
   language: string
   isAssigned: boolean
   category: string
+  framework: string // New prop
   isLoading: boolean
   onServiceChange: (value: Service) => void
   onMinStarsChange: (value: string) => void
@@ -55,6 +55,7 @@ type FilterFormProps = {
   onLanguageChange: (value: string) => void
   onIsAssignedChange: (value: boolean) => void
   onCategoryChange: (value: string) => void
+  onFrameworkChange: (value: string) => void // New prop
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
 }
 
@@ -65,6 +66,7 @@ export function FilterForm({
   language,
   isAssigned,
   category,
+  framework,
   isLoading,
   onServiceChange,
   onMinStarsChange,
@@ -72,6 +74,7 @@ export function FilterForm({
   onLanguageChange,
   onIsAssignedChange,
   onCategoryChange,
+  onFrameworkChange,
   onSubmit,
 }: FilterFormProps) {
   return (
@@ -177,6 +180,19 @@ export function FilterForm({
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="framework" className="text-sm font-medium">
+                      Framework/Library
+                    </label>
+                    <Input
+                      type="text"
+                      id="framework"
+                      name="framework"
+                      value={framework}
+                      onChange={(e) => onFrameworkChange(e.target.value)}
+                      placeholder="e.g. reactjs, expressjs"
+                    />
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox

@@ -1,5 +1,3 @@
-// _index.tsx
-
 import { json, LoaderFunction } from "@remix-run/node"
 import { useLoaderData, useSubmit, useNavigation } from "@remix-run/react"
 import { useState, useEffect } from "react"
@@ -8,10 +6,12 @@ import { LoaderData, FilterParams, Service } from "../types"
 import {
   fetchGitHubIssues,
   fetchGitHubIssuesByCategory,
+  fetchGitHubIssuesByFramework,
 } from "../services/github"
 import {
   fetchGitLabIssues,
   fetchGitLabIssuesByCategory,
+  fetchGitLabIssuesByFramework,
 } from "../services/gitlab"
 import { FilterForm } from "../components/FilterForm"
 import { IssueCard } from "../components/IssueCard"
@@ -26,11 +26,17 @@ export const loader: LoaderFunction = async ({ request }) => {
     isAssigned: url.searchParams.get("isAssigned") === "true",
     cursor: url.searchParams.get("cursor") || null,
     category: url.searchParams.get("category") || "all",
+    framework: url.searchParams.get("framework") || "",
   }
 
   try {
     let data
-    if (params.category && params.category !== "all") {
+    if (params.framework) {
+      data =
+        params.service === "github"
+          ? await fetchGitHubIssuesByFramework(params)
+          : await fetchGitLabIssuesByFramework(params)
+    } else if (params.category && params.category !== "all") {
       data =
         params.service === "github"
           ? await fetchGitHubIssuesByCategory(params)
@@ -73,6 +79,7 @@ export default function Index() {
   const [language, setLanguage] = useState("")
   const [isAssigned, setIsAssigned] = useState(false)
   const [category, setCategory] = useState("all")
+  const [framework, setFramework] = useState("") // New state for framework
   const [allIssues, setAllIssues] = useState(issues)
   const submit = useSubmit()
   const navigation = useNavigation()
@@ -85,6 +92,7 @@ export default function Index() {
     setLanguage(url.searchParams.get("language") || "")
     setIsAssigned(url.searchParams.get("isAssigned") === "true")
     setCategory(url.searchParams.get("category") || "all")
+    setFramework(url.searchParams.get("framework") || "") // Set framework from URL
   }, [])
 
   useEffect(() => {
@@ -100,6 +108,9 @@ export default function Index() {
     } else {
       formData.set("category", category)
     }
+    if (!framework) {
+      formData.delete("framework")
+    }
     setAllIssues([])
     submit(formData, { method: "get" })
   }
@@ -112,6 +123,7 @@ export default function Index() {
     formData.set("language", language)
     formData.set("isAssigned", isAssigned.toString())
     formData.set("category", category)
+    formData.set("framework", framework)
     formData.set("cursor", endCursor || "")
     submit(formData, { method: "get" })
   }
@@ -125,6 +137,7 @@ export default function Index() {
     formData.set("language", language)
     formData.set("isAssigned", isAssigned.toString())
     formData.set("category", category)
+    formData.set("framework", framework)
     setAllIssues([])
     submit(formData, { method: "get" })
   }
@@ -144,6 +157,7 @@ export default function Index() {
         language={language}
         isAssigned={isAssigned}
         category={category}
+        framework={framework}
         isLoading={isLoading}
         onServiceChange={handleServiceChange}
         onMinStarsChange={setMinStars}
@@ -151,6 +165,7 @@ export default function Index() {
         onLanguageChange={setLanguage}
         onIsAssignedChange={setIsAssigned}
         onCategoryChange={setCategory}
+        onFrameworkChange={setFramework}
         onSubmit={handleSubmit}
       />
 
