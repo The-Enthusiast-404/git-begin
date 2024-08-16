@@ -9,3 +9,8 @@ node_modules
 
 # Escape eslintcache
 .eslintcache
+
+
+# Local Netlify folder
+.netlify
+.DS_Store
