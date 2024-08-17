@@ -3,26 +3,27 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Star, Calendar, Code, Tag, MessageSquare } from "lucide-react"
+import { ModeToggle } from "~/components/toggle-menu"
 
 type IssueCardProps = {
   issue: Issue
 }
 
-export function IssueCard({ issue }: IssueCardProps) {
-  const getBeginnerFriendlyLabel = (labels: string[]): string => {
-    const beginnerFriendlyLabels = [
-      "good first issue",
-      "quick wins",
-      "first timers only",
-      "up for grabs",
-    ]
-    return (
-      labels.find((label) =>
-        beginnerFriendlyLabels.includes(label.toLowerCase())
-      ) || "Beginner Friendly"
-    )
-  }
+const getBeginnerFriendlyLabel = (labels: string[]): string => {
+  const beginnerFriendlyLabels: string[] = [
+    "good first issue",
+    "quick wins",
+    "first timers only",
+    "up for grabs",
+  ]
+  return (
+    labels.find((label) =>
+      beginnerFriendlyLabels.includes(label.toLowerCase()),
+    ) || "Beginner Friendly"
+  )
+}
 
+export function IssueCard({ issue }: IssueCardProps) {
   return (
     <Card className="hover:shadow-lg transition-shadow duration-300">
       <CardContent className="p-6">
@@ -36,6 +37,7 @@ export function IssueCard({ issue }: IssueCardProps) {
           <Badge variant="secondary">
             {getBeginnerFriendlyLabel(issue.labels)}
           </Badge>
+          <ModeToggle />
         </div>
         <Separator className="my-4" />
         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
