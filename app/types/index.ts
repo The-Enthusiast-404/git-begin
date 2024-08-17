@@ -1,3 +1,4 @@
+// types.ts
 export type Issue = {
   id: string
   title: string
@@ -28,4 +29,6 @@ export type FilterParams = {
   language: string
   isAssigned: boolean
   cursor: string | null
+  category: string // New field for category filter
+  framework: string
 }

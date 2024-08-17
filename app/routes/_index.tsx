@@ -3,8 +3,16 @@ import { useLoaderData, useSubmit, useNavigation } from "@remix-run/react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { LoaderData, FilterParams, Service } from "../types"
-import { fetchGitHubIssues } from "../services/github"
-import { fetchGitLabIssues } from "../services/gitlab"
+import {
+  fetchGitHubIssues,
+  fetchGitHubIssuesByCategory,
+  fetchGitHubIssuesByFramework,
+} from "../services/github"
+import {
+  fetchGitLabIssues,
+  fetchGitLabIssuesByCategory,
+  fetchGitLabIssuesByFramework,
+} from "../services/gitlab"
 import { FilterForm } from "../components/FilterForm"
 import { IssueCard } from "../components/IssueCard"
 
@@ -17,13 +25,28 @@ export const loader: LoaderFunction = async ({ request }) => {
     language: url.searchParams.get("language") || "",
     isAssigned: url.searchParams.get("isAssigned") === "true",
     cursor: url.searchParams.get("cursor") || null,
+    category: url.searchParams.get("category") || "all",
+    framework: url.searchParams.get("framework") || "",
   }
 
   try {
-    const data =
-      params.service === "github"
-        ? await fetchGitHubIssues(params)
-        : await fetchGitLabIssues(params)
+    let data
+    if (params.framework) {
+      data =
+        params.service === "github"
+          ? await fetchGitHubIssuesByFramework(params)
+          : await fetchGitLabIssuesByFramework(params)
+    } else if (params.category && params.category !== "all") {
+      data =
+        params.service === "github"
+          ? await fetchGitHubIssuesByCategory(params)
+          : await fetchGitLabIssuesByCategory(params)
+    } else {
+      data =
+        params.service === "github"
+          ? await fetchGitHubIssues(params)
+          : await fetchGitLabIssues(params)
+    }
     return json({ ...data, service: params.service })
   } catch (error) {
     console.error("Error fetching issues:", error)
@@ -55,6 +78,8 @@ export default function Index() {
   const [maxStars, setMaxStars] = useState("1000000")
   const [language, setLanguage] = useState("")
   const [isAssigned, setIsAssigned] = useState(false)
+  const [category, setCategory] = useState("all")
+  const [framework, setFramework] = useState("") // New state for framework
   const [allIssues, setAllIssues] = useState(issues)
   const submit = useSubmit()
   const navigation = useNavigation()
@@ -66,6 +91,8 @@ export default function Index() {
     setMaxStars(url.searchParams.get("maxStars") || "1000000")
     setLanguage(url.searchParams.get("language") || "")
     setIsAssigned(url.searchParams.get("isAssigned") === "true")
+    setCategory(url.searchParams.get("category") || "all")
+    setFramework(url.searchParams.get("framework") || "") // Set framework from URL
   }, [])
 
   useEffect(() => {
@@ -76,6 +103,14 @@ export default function Index() {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
     formData.delete("cursor")
+    if (category === "all") {
+      formData.delete("category")
+    } else {
+      formData.set("category", category)
+    }
+    if (!framework) {
+      formData.delete("framework")
+    }
     setAllIssues([])
     submit(formData, { method: "get" })
   }
@@ -87,6 +122,8 @@ export default function Index() {
     formData.set("maxStars", maxStars)
     formData.set("language", language)
     formData.set("isAssigned", isAssigned.toString())
+    formData.set("category", category)
+    formData.set("framework", framework)
     formData.set("cursor", endCursor || "")
     submit(formData, { method: "get" })
   }
@@ -99,6 +136,8 @@ export default function Index() {
     formData.set("maxStars", maxStars)
     formData.set("language", language)
     formData.set("isAssigned", isAssigned.toString())
+    formData.set("category", category)
+    formData.set("framework", framework)
     setAllIssues([])
     submit(formData, { method: "get" })
   }
@@ -117,12 +156,16 @@ export default function Index() {
         maxStars={maxStars}
         language={language}
         isAssigned={isAssigned}
+        category={category}
+        framework={framework}
         isLoading={isLoading}
         onServiceChange={handleServiceChange}
         onMinStarsChange={setMinStars}
         onMaxStarsChange={setMaxStars}
         onLanguageChange={setLanguage}
         onIsAssignedChange={setIsAssigned}
+        onCategoryChange={setCategory}
+        onFrameworkChange={setFramework}
         onSubmit={handleSubmit}
       />
 
@@ -134,7 +177,8 @@ export default function Index() {
 
       {allIssues.length === 0 && !error && (
         <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md">
-          No issues found matching the current criteria.
+          No issues found matching the current criteria. Try adjusting your
+          filters.
         </div>
       )}
 
