@@ -87,7 +87,7 @@ export function FilterForm({
         <TabsList className="grid w-full grid-cols-2 mb-4">
           <TabsTrigger
             value="github"
-            className={`flex items-center justify-center p-4 ${
+            className={`flex items-center justify-center p-4 rounded-l-md ${
               service === "github" ? "bg-blue-500 text-white" : "bg-gray-200"
             }`}
           >
@@ -96,7 +96,7 @@ export function FilterForm({
           </TabsTrigger>
           <TabsTrigger
             value="gitlab"
-            className={`flex items-center justify-center p-4 ${
+            className={`flex items-center justify-center p-4 rounded-r-md ${
               service === "gitlab" ? "bg-orange-500 text-white" : "bg-gray-200"
             }`}
           >
