@@ -13,32 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Service } from "../types"
-
-const GitLabLogo = () => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 512 512"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M503.5 204.6L502.8 202.8L433.1 21.02C431.7 17.45 429.2 14.43 425.9 12.38C423.5 10.83 420.8 9.865 417.9 9.57C415 9.275 412.2 9.653 409.5 10.68C406.8 11.7 404.4 13.34 402.4 15.46C400.5 17.58 399.1 20.13 398.3 22.9L351.3 166.9H160.8L113.8 22.9C112.9 20.13 111.5 17.59 109.6 15.47C107.6 13.35 105.2 11.72 102.5 10.7C99.86 9.675 96.98 9.295 94.12 9.587C91.26 9.878 88.51 10.83 86.08 12.38C82.84 14.43 80.33 17.45 78.92 21.02L9.267 202.8L8.543 204.6C-1.484 230.8-2.72 259.6 5.023 286.6C12.77 313.5 29.07 337.3 51.47 354.2L51.74 354.4L52.33 354.8L158.3 434.3L210.9 474L242.9 498.2C246.6 500.1 251.2 502.5 255.9 502.5C260.6 502.5 265.2 500.1 268.9 498.2L300.9 474L353.5 434.3L460.2 354.4L460.5 354.1C482.9 337.2 499.2 313.5 506.1 286.6C514.7 259.6 513.5 230.8 503.5 204.6Z"
-      fill="currentColor"
-    />
-  </svg>
-)
-
-const categories = [
-  { value: "all", label: "All Categories" },
-  { value: "web-dev", label: "Web Development" },
-  { value: "mobile-dev", label: "Mobile Development" },
-  { value: "data-science", label: "Data Science" },
-  { value: "machine-learning", label: "Machine Learning" },
-  { value: "devops", label: "DevOps" },
-  { value: "cybersecurity", label: "Cybersecurity" },
-  { value: "documentation", label: "Documentation" },
-]
+import { Service } from "~/types"
+import GitLabLogo from "~/components/GitLabLogo"
+import { categories } from "~/data/categories"
 
 type FilterFormProps = {
   service: Service
@@ -60,23 +37,23 @@ type FilterFormProps = {
 }
 
 export function FilterForm({
-  service,
-  minStars,
-  maxStars,
-  language,
-  isAssigned,
-  category,
-  framework,
-  isLoading,
-  onServiceChange,
-  onMinStarsChange,
-  onMaxStarsChange,
-  onLanguageChange,
-  onIsAssignedChange,
-  onCategoryChange,
-  onFrameworkChange,
-  onSubmit,
-}: FilterFormProps) {
+                             service,
+                             minStars,
+                             maxStars,
+                             language,
+                             isAssigned,
+                             category,
+                             framework,
+                             isLoading,
+                             onServiceChange,
+                             onMinStarsChange,
+                             onMaxStarsChange,
+                             onLanguageChange,
+                             onIsAssignedChange,
+                             onCategoryChange,
+                             onFrameworkChange,
+                             onSubmit,
+                           }: FilterFormProps) {
   return (
     <div className="mb-8">
       <Tabs
@@ -97,7 +74,7 @@ export function FilterForm({
           <TabsTrigger
             value="gitlab"
             className={`flex items-center justify-center p-4 rounded-r-md ${
-              service === "gitlab" ? "bg-orange-500 text-white" : "bg-gray-200"
+              service === "gitlab" ? "bg-orange-500 text-black": "dark:bg-gray-400 light: bg-gray-200"
             }`}
           >
             <GitLabLogo />
@@ -106,11 +83,8 @@ export function FilterForm({
         </TabsList>
 
         <TabsContent value={service}>
-          <Card
-            className={
-              service === "github" ? "border-blue-500" : "border-orange-500"
-            }
-          >
+
+          <Card className="border rounded-md">
             <CardHeader>
               <CardTitle className="flex items-center">
                 {service === "github" ? (
@@ -126,7 +100,7 @@ export function FilterForm({
             <CardContent>
               <Form method="get" onSubmit={onSubmit}>
                 <input type="hidden" name="service" value={service} />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-1">
                   <div className="space-y-2">
                     <label htmlFor="minStars" className="text-sm font-medium">
                       Min Stars
@@ -137,7 +111,7 @@ export function FilterForm({
                       name="minStars"
                       value={minStars}
                       onChange={(e) => onMinStarsChange(e.target.value)}
-                    />
+                      className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200" />
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="maxStars" className="text-sm font-medium">
@@ -149,6 +123,7 @@ export function FilterForm({
                       name="maxStars"
                       value={maxStars}
                       onChange={(e) => onMaxStarsChange(e.target.value)}
+                      className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
                     />
                   </div>
                   <div className="space-y-2">
@@ -162,25 +137,38 @@ export function FilterForm({
                       value={language}
                       onChange={(e) => onLanguageChange(e.target.value)}
                       placeholder="e.g. JavaScript"
+                      className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
+
                     />
                   </div>
+
                   <div className="space-y-2">
                     <label htmlFor="category" className="text-sm font-medium">
                       Category
                     </label>
-                    <Select value={category} onValueChange={onCategoryChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((cat) => (
-                          <SelectItem key={cat.value} value={cat.value}>
-                            {cat.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div
+                      className="bg-white dark:bg-gray-800 text-black dark:text-white py-1 light:border-transparent dark:border-transparent focus-within:border-blue-500 focus-within:outline-none rounded-md transition-colors duration-200"
+                    >
+                      <Select value={category} onValueChange={onCategoryChange}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        <SelectContent
+                          className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent rounded-md shadow-lg w-full">
+                          {categories.map((cat) => (
+                            <SelectItem
+                              key={cat.value}
+                              value={cat.value}
+                              className="my-1 px-2 py-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md"
+                            >
+                              {cat.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
+
                   <div className="space-y-2">
                     <label htmlFor="framework" className="text-sm font-medium">
                       Framework/Library
@@ -192,28 +180,49 @@ export function FilterForm({
                       value={framework}
                       onChange={(e) => onFrameworkChange(e.target.value)}
                       placeholder="e.g. reactjs, expressjs"
+                      className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
                     />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="isAssigned"
-                      name="isAssigned"
-                      checked={isAssigned}
-                      onCheckedChange={(checked) =>
-                        onIsAssignedChange(checked as boolean)
-                      }
-                    />
-                    <label
-                      htmlFor="isAssigned"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+
+                  <div className="space-y-2">
+                    <label htmlFor="isAssigned" className="text-sm font-medium text-black dark:text-white">
+                      Assigned
+                    </label><br />
+                    <div
+                      className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
                     >
-                      Include Assigned Issues
-                    </label>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="isAssigned"
+                          name="isAssigned"
+                          checked={isAssigned}
+                          onCheckedChange={(checked) => onIsAssignedChange(checked as boolean)}
+                          className="form-checkbox w-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 dark:focus:ring-blue-400"
+                        />
+                        <label
+                          htmlFor="isAssigned"
+                          className="text-sm font-medium leading-none text-black dark:text-white peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Include Assigned Issues
+                        </label>
+                      </div>
+                    </div>
                   </div>
+
+
                 </div>
-                <Button type="submit" className="mt-4" disabled={isLoading}>
+                <Button
+                  type="submit"
+                  className={`mt-4 px-4 py-2 rounded-md transition-colors duration-200 ${
+                    isLoading
+                      ? "bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300 cursor-not-allowed"
+                      : "bg-blue-600 dark:bg-blue-400 text-white dark:text-black hover:bg-blue-700 dark:hover:bg-blue-500"
+                  }`}
+                  disabled={isLoading}
+                >
                   {isLoading ? "Filtering..." : "Filter"}
                 </Button>
+
               </Form>
             </CardContent>
           </Card>
