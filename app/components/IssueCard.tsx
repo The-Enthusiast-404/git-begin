@@ -3,18 +3,36 @@ import { Issue } from "~/types"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { Star, Calendar, Code, Tag, MessageSquare } from "lucide-react"
 import {
-  Star,
-  Calendar,
-  Code,
-  Tag,
-  MessageSquare,
-  GitPullRequest,
-} from "lucide-react"
+  ReactIcon,
+  NodeJsIcon,
+  VueJsIcon,
+  TypeScriptIcon,
+  DockerIcon,
+  PythonIcon,
+  JavaIcon,
+  PhpIcon,
+  AwsIcon,
+  FlutterIcon,
+  MdxIcon,
+  AngularIcon,
+  GoIcon,
+  CSharpIcon,
+  SwiftIcon,
+  KotlinIcon,
+  ScalaIcon,
+  RubyIcon,
+  RustIcon,
+  CplusplusIcon,
+  CIcon,
+  ElixirIcon,
+  HaskellIcon,
+  DartIcon,
+} from "app/icons"
 
 type IssueCardProps = {
   issue: Issue
-  showPullRequests: boolean
 }
 
 const getBeginnerFriendlyLabel = (labels: string[]): string => {
@@ -31,7 +49,41 @@ const getBeginnerFriendlyLabel = (labels: string[]): string => {
   )
 }
 
-export function IssueCard({ issue, showPullRequests }: IssueCardProps) {
+const languageIcons: { [key: string]: JSX.Element } = {
+  JavaScript: <NodeJsIcon />,
+  TypeScript: <TypeScriptIcon />,
+  Python: <PythonIcon />,
+  Java: <JavaIcon />,
+  PHP: <PhpIcon />,
+  React: <ReactIcon />,
+  Vue: <VueJsIcon />,
+  Angular: <AngularIcon />,
+  Flutter: <FlutterIcon />,
+  MDX: <MdxIcon />,
+  Docker: <DockerIcon />,
+  AWS: <AwsIcon />,
+  Go: <GoIcon />,
+  "C#": <CSharpIcon />,
+  Swift: <SwiftIcon />,
+  Kotlin: <KotlinIcon />,
+  Scala: <ScalaIcon />,
+  Ruby: <RubyIcon />,
+  Rust: <RustIcon />,
+  "C++": <CplusplusIcon />,
+  C: <CIcon />,
+  Elixir: <ElixirIcon />,
+  Haskell: <HaskellIcon />,
+  Dart: <DartIcon />,
+}
+
+export function IssueCard({ issue }: IssueCardProps) {
+  const LanguageIcon =
+    issue.language && languageIcons[issue.language] ? (
+      languageIcons[issue.language]
+    ) : (
+      <Code className="w-4 h-4" />
+    )
+
   return (
     <Card className="border rounded-md hover:shadow-xl transition-shadow duration-300">
       <CardContent className="p-6">
@@ -54,7 +106,8 @@ export function IssueCard({ issue, showPullRequests }: IssueCardProps) {
             <Star className="w-4 h-4 mr-1" /> {issue.stars_count}
           </span>
           <span className="flex items-center">
-            <Code className="w-4 h-4 mr-1" /> {issue.language || "N/A"}
+            {LanguageIcon}
+            <span className="ml-1">{issue.language || "N/A"}</span>
           </span>
           <span className="flex items-center">
             <Calendar className="w-4 h-4 mr-1" />
@@ -66,11 +119,6 @@ export function IssueCard({ issue, showPullRequests }: IssueCardProps) {
           <span className="flex items-center">
             <MessageSquare className="w-4 h-4 mr-1" /> {issue.comments_count}
           </span>
-          {showPullRequests && issue.has_pull_requests && (
-            <span className="flex items-center">
-              <GitPullRequest className="w-4 h-4 mr-1" /> Has PRs
-            </span>
-          )}
           {issue.is_assigned && <Badge variant="outline">Assigned</Badge>}
         </div>
         <p className="mt-2 text-sm text-gray-600">{issue.repository_name}</p>
