@@ -13,6 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { Service } from "~/types"
 import GitLabLogo from "~/components/GitLabLogo"
 import { categories } from "~/data/categories"
@@ -24,7 +30,7 @@ type FilterFormProps = {
   language: string
   isAssigned: boolean
   category: string
-  framework: string // New prop
+  framework: string
   isLoading: boolean
   onServiceChange: (value: Service) => void
   onMinStarsChange: (value: string) => void
@@ -32,28 +38,28 @@ type FilterFormProps = {
   onLanguageChange: (value: string) => void
   onIsAssignedChange: (value: boolean) => void
   onCategoryChange: (value: string) => void
-  onFrameworkChange: (value: string) => void // New prop
+  onFrameworkChange: (value: string) => void
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
 }
 
 export function FilterForm({
-                             service,
-                             minStars,
-                             maxStars,
-                             language,
-                             isAssigned,
-                             category,
-                             framework,
-                             isLoading,
-                             onServiceChange,
-                             onMinStarsChange,
-                             onMaxStarsChange,
-                             onLanguageChange,
-                             onIsAssignedChange,
-                             onCategoryChange,
-                             onFrameworkChange,
-                             onSubmit,
-                           }: FilterFormProps) {
+  service,
+  minStars,
+  maxStars,
+  language,
+  isAssigned,
+  category,
+  framework,
+  isLoading,
+  onServiceChange,
+  onMinStarsChange,
+  onMaxStarsChange,
+  onLanguageChange,
+  onIsAssignedChange,
+  onCategoryChange,
+  onFrameworkChange,
+  onSubmit,
+}: FilterFormProps) {
   return (
     <div className="mb-8">
       <Tabs
@@ -71,19 +77,30 @@ export function FilterForm({
             <GitHubLogoIcon className="w-6 h-6 mr-2" />
             GitHub
           </TabsTrigger>
-          <TabsTrigger
-            value="gitlab"
-            className={`flex items-center justify-center p-4 rounded-r-md ${
-              service === "gitlab" ? "bg-orange-500 text-black": "dark:bg-gray-400 light: bg-gray-200"
-            }`}
-          >
-            <GitLabLogo />
-            <span className="ml-2">GitLab</span>
-          </TabsTrigger>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger
+                  value="gitlab"
+                  className={`flex items-center justify-center p-4 rounded-r-md cursor-not-allowed ${
+                    service === "gitlab"
+                      ? "bg-gray-400 text-gray-600"
+                      : "bg-gray-300 text-gray-500"
+                  }`}
+                  disabled={true}
+                >
+                  <GitLabLogo />
+                  <span className="ml-2">GitLab</span>
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>GitLab API is currently down</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </TabsList>
 
         <TabsContent value={service}>
-
           <Card className="border rounded-md">
             <CardHeader>
               <CardTitle className="flex items-center">
@@ -111,7 +128,8 @@ export function FilterForm({
                       name="minStars"
                       value={minStars}
                       onChange={(e) => onMinStarsChange(e.target.value)}
-                      className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200" />
+                      className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
+                    />
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="maxStars" className="text-sm font-medium">
@@ -138,7 +156,6 @@ export function FilterForm({
                       onChange={(e) => onLanguageChange(e.target.value)}
                       placeholder="e.g. JavaScript"
                       className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
-
                     />
                   </div>
 
@@ -146,15 +163,12 @@ export function FilterForm({
                     <label htmlFor="category" className="text-sm font-medium">
                       Category
                     </label>
-                    <div
-                      className="bg-white dark:bg-gray-800 text-black dark:text-white py-1 light:border-transparent dark:border-transparent focus-within:border-blue-500 focus-within:outline-none rounded-md transition-colors duration-200"
-                    >
+                    <div className="bg-white dark:bg-gray-800 text-black dark:text-white py-1 light:border-transparent dark:border-transparent focus-within:border-blue-500 focus-within:outline-none rounded-md transition-colors duration-200">
                       <Select value={category} onValueChange={onCategoryChange}>
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
-                        <SelectContent
-                          className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent rounded-md shadow-lg w-full">
+                        <SelectContent className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent rounded-md shadow-lg w-full">
                           {categories.map((cat) => (
                             <SelectItem
                               key={cat.value}
@@ -185,18 +199,22 @@ export function FilterForm({
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="isAssigned" className="text-sm font-medium text-black dark:text-white">
-                      Assigned
-                    </label><br />
-                    <div
-                      className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
+                    <label
+                      htmlFor="isAssigned"
+                      className="text-sm font-medium text-black dark:text-white"
                     >
+                      Assigned
+                    </label>
+                    <br />
+                    <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200">
                       <div className="flex items-center space-x-2">
                         <Checkbox
                           id="isAssigned"
                           name="isAssigned"
                           checked={isAssigned}
-                          onCheckedChange={(checked) => onIsAssignedChange(checked as boolean)}
+                          onCheckedChange={(checked) =>
+                            onIsAssignedChange(checked as boolean)
+                          }
                           className="form-checkbox w-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 dark:focus:ring-blue-400"
                         />
                         <label
@@ -208,8 +226,6 @@ export function FilterForm({
                       </div>
                     </div>
                   </div>
-
-
                 </div>
                 <Button
                   type="submit"
@@ -222,7 +238,6 @@ export function FilterForm({
                 >
                   {isLoading ? "Filtering..." : "Filter"}
                 </Button>
-
               </Form>
             </CardContent>
           </Card>
