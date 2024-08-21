@@ -3,7 +3,14 @@ import { Issue } from "~/types"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Star, Calendar, Code, Tag, MessageSquare } from "lucide-react"
+import {
+  Star,
+  Calendar,
+  Code,
+  Tag,
+  MessageSquare,
+  GitPullRequest,
+} from "lucide-react"
 import {
   ReactIcon,
   NodeJsIcon,
@@ -33,6 +40,7 @@ import {
 
 type IssueCardProps = {
   issue: Issue
+  showPullRequests: boolean
 }
 
 const getBeginnerFriendlyLabel = (labels: string[]): string => {
@@ -76,7 +84,7 @@ const languageIcons: { [key: string]: JSX.Element } = {
   Dart: <DartIcon />,
 }
 
-export function IssueCard({ issue }: IssueCardProps) {
+export function IssueCard({ issue, showPullRequests }: IssueCardProps) {
   const LanguageIcon =
     issue.language && languageIcons[issue.language] ? (
       languageIcons[issue.language]
@@ -116,6 +124,11 @@ export function IssueCard({ issue }: IssueCardProps) {
           <span className="flex items-center">
             <MessageSquare className="w-4 h-4 mr-1" /> {issue.comments_count}
           </span>
+          {showPullRequests && issue.has_pull_requests && (
+            <span className="flex items-center">
+              <GitPullRequest className="w-4 h-4 mr-1" /> Has PRs
+            </span>
+          )}
           {issue.is_assigned && <Badge variant="outline">Assigned</Badge>}
         </div>
         <p className="mt-2 text-sm text-gray-600">{issue.repository_name}</p>

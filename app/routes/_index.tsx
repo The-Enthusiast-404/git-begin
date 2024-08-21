@@ -16,6 +16,7 @@ import {
 import { FilterForm } from "~/components/FilterForm"
 import { IssueCard } from "~/components/IssueCard"
 import NavBar from "~/components/NavBar"
+import Footer from "~/components/Footer"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -154,74 +155,78 @@ export default function Index() {
     navigation.state === "loading" || navigation.state === "submitting"
 
   return (
-    <div className="container mx-auto px-4 min-h-screen flex flex-col">
+    <div className="flex flex-col min-h-screen">
       <NavBar />
 
-      <div className="flex-1 flex flex-col lg:flex-row lg:space-x-4">
-        <div className="w-full lg:w-1/4 mb-4 lg:mb-0">
-          <div className="lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
-            <FilterForm
-              service={service}
-              minStars={minStars}
-              maxStars={maxStars}
-              language={language}
-              isAssigned={isAssigned}
-              category={category}
-              framework={framework}
-              hasPullRequests={hasPullRequests}
-              isLoading={isLoading}
-              onServiceChange={handleServiceChange}
-              onMinStarsChange={setMinStars}
-              onMaxStarsChange={setMaxStars}
-              onLanguageChange={setLanguage}
-              onIsAssignedChange={setIsAssigned}
-              onCategoryChange={setCategory}
-              onFrameworkChange={setFramework}
-              onHasPullRequestsChange={setHasPullRequests}
-              onSubmit={handleSubmit}
-            />
+      <main className="flex-grow container mx-auto px-4">
+        <div className="flex flex-col lg:flex-row lg:space-x-4">
+          <div className="w-full lg:w-1/4 mb-4 lg:mb-0">
+            <div className="lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
+              <FilterForm
+                service={service}
+                minStars={minStars}
+                maxStars={maxStars}
+                language={language}
+                isAssigned={isAssigned}
+                category={category}
+                framework={framework}
+                hasPullRequests={hasPullRequests}
+                isLoading={isLoading}
+                onServiceChange={handleServiceChange}
+                onMinStarsChange={setMinStars}
+                onMaxStarsChange={setMaxStars}
+                onLanguageChange={setLanguage}
+                onIsAssignedChange={setIsAssigned}
+                onCategoryChange={setCategory}
+                onFrameworkChange={setFramework}
+                onHasPullRequestsChange={setHasPullRequests}
+                onSubmit={handleSubmit}
+              />
+            </div>
+          </div>
+
+          <div className="flex-1 lg:overflow-hidden">
+            <ScrollArea className="h-full lg:h-[calc(100vh-2rem)]">
+              {error && (
+                <div className="mb-4 p-4 bg-red-50 text-red-500 rounded-md">
+                  Error: {error}
+                </div>
+              )}
+
+              {allIssues.length === 0 && !error && (
+                <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md">
+                  No issues found matching the current criteria. Try adjusting
+                  your filters.
+                </div>
+              )}
+
+              <div className="space-y-4 p-4">
+                {allIssues.map((issue, index) => (
+                  <IssueCard
+                    key={`${issue.id}-${index}`}
+                    issue={issue}
+                    showPullRequests={hasPullRequests}
+                  />
+                ))}
+              </div>
+
+              {hasNextPage && (
+                <div className="flex justify-center mt-6 mb-6">
+                  <Button
+                    onClick={handleLoadMore}
+                    disabled={isLoading}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    {isLoading ? "Loading..." : "Load More"}
+                  </Button>
+                </div>
+              )}
+            </ScrollArea>
           </div>
         </div>
+      </main>
 
-        <div className="flex-1 lg:overflow-hidden">
-          <ScrollArea className="h-full lg:h-[calc(100vh-2rem)]">
-            {error && (
-              <div className="mb-4 p-4 bg-red-50 text-red-500 rounded-md">
-                Error: {error}
-              </div>
-            )}
-
-            {allIssues.length === 0 && !error && (
-              <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md">
-                No issues found matching the current criteria. Try adjusting
-                your filters.
-              </div>
-            )}
-
-            <div className="space-y-4 p-4">
-              {allIssues.map((issue, index) => (
-                <IssueCard
-                  key={`${issue.id}-${index}`}
-                  issue={issue}
-                  showPullRequests={hasPullRequests}
-                />
-              ))}
-            </div>
-
-            {hasNextPage && (
-              <div className="flex justify-center mt-6 mb-6">
-                <Button
-                  onClick={handleLoadMore}
-                  disabled={isLoading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  {isLoading ? "Loading..." : "Load More"}
-                </Button>
-              </div>
-            )}
-          </ScrollArea>
-        </div>
-      </div>
+      <Footer />
     </div>
   )
 }
