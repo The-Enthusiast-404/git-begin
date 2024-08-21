@@ -28,6 +28,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     cursor: url.searchParams.get("cursor") || null,
     category: url.searchParams.get("category") || "all",
     framework: url.searchParams.get("framework") || "",
+    hasPullRequests: url.searchParams.get("hasPullRequests") === "true",
   }
 
   try {
@@ -80,7 +81,8 @@ export default function Index() {
   const [language, setLanguage] = useState("")
   const [isAssigned, setIsAssigned] = useState(false)
   const [category, setCategory] = useState("all")
-  const [framework, setFramework] = useState("") // New state for framework
+  const [framework, setFramework] = useState("")
+  const [hasPullRequests, setHasPullRequests] = useState(false)
   const [allIssues, setAllIssues] = useState(issues)
   const submit = useSubmit()
   const navigation = useNavigation()
@@ -93,7 +95,8 @@ export default function Index() {
     setLanguage(url.searchParams.get("language") || "")
     setIsAssigned(url.searchParams.get("isAssigned") === "true")
     setCategory(url.searchParams.get("category") || "all")
-    setFramework(url.searchParams.get("framework") || "") // Set framework from URL
+    setFramework(url.searchParams.get("framework") || "")
+    setHasPullRequests(url.searchParams.get("hasPullRequests") === "true")
   }, [])
 
   useEffect(() => {
@@ -112,6 +115,7 @@ export default function Index() {
     if (!framework) {
       formData.delete("framework")
     }
+    formData.set("hasPullRequests", hasPullRequests.toString())
     setAllIssues([])
     submit(formData, { method: "get" })
   }
@@ -125,6 +129,7 @@ export default function Index() {
     formData.set("isAssigned", isAssigned.toString())
     formData.set("category", category)
     formData.set("framework", framework)
+    formData.set("hasPullRequests", hasPullRequests.toString())
     formData.set("cursor", endCursor || "")
     submit(formData, { method: "get" })
   }
@@ -139,6 +144,7 @@ export default function Index() {
     formData.set("isAssigned", isAssigned.toString())
     formData.set("category", category)
     formData.set("framework", framework)
+    formData.set("hasPullRequests", hasPullRequests.toString())
     setAllIssues([])
     submit(formData, { method: "get" })
   }
@@ -160,6 +166,7 @@ export default function Index() {
             isAssigned={isAssigned}
             category={category}
             framework={framework}
+            hasPullRequests={hasPullRequests}
             isLoading={isLoading}
             onServiceChange={handleServiceChange}
             onMinStarsChange={setMinStars}
@@ -168,6 +175,7 @@ export default function Index() {
             onIsAssignedChange={setIsAssigned}
             onCategoryChange={setCategory}
             onFrameworkChange={setFramework}
+            onHasPullRequestsChange={setHasPullRequests}
             onSubmit={handleSubmit}
           />
         </div>
@@ -181,7 +189,8 @@ export default function Index() {
 
           {allIssues.length === 0 && !error && (
             <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md">
-              No issues found matching the current criteria. Try adjusting your filters.
+              No issues found matching the current criteria. Try adjusting your
+              filters.
             </div>
           )}
 
@@ -190,7 +199,7 @@ export default function Index() {
               <IssueCard
                 key={`${issue.id}-${index}`}
                 issue={issue}
-                service={service}
+                showPullRequests={hasPullRequests}
               />
             ))}
           </div>
@@ -209,6 +218,5 @@ export default function Index() {
         </div>
       </div>
     </div>
-
   )
 }

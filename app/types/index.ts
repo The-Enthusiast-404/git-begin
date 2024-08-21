@@ -11,6 +11,7 @@ export type Issue = {
   is_assigned: boolean
   labels: string[]
   comments_count: number
+  pull_requests_count: number
 }
 
 export type LoaderData = {
@@ -31,4 +32,5 @@ export type FilterParams = {
   cursor: string | null
   category: string // New field for category filter
   framework: string
+  hasPullRequests: boolean
 }

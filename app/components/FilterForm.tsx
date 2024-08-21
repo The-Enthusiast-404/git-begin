@@ -31,6 +31,7 @@ type FilterFormProps = {
   isAssigned: boolean
   category: string
   framework: string
+  hasPullRequests: boolean
   isLoading: boolean
   onServiceChange: (value: Service) => void
   onMinStarsChange: (value: string) => void
@@ -39,6 +40,7 @@ type FilterFormProps = {
   onIsAssignedChange: (value: boolean) => void
   onCategoryChange: (value: string) => void
   onFrameworkChange: (value: string) => void
+  onHasPullRequestsChange: (value: boolean) => void
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
 }
 
@@ -50,6 +52,7 @@ export function FilterForm({
   isAssigned,
   category,
   framework,
+  hasPullRequests,
   isLoading,
   onServiceChange,
   onMinStarsChange,
@@ -58,6 +61,7 @@ export function FilterForm({
   onIsAssignedChange,
   onCategoryChange,
   onFrameworkChange,
+  onHasPullRequestsChange,
   onSubmit,
 }: FilterFormProps) {
   return (
@@ -222,6 +226,35 @@ export function FilterForm({
                           className="text-sm font-medium leading-none text-black dark:text-white peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                         >
                           Include Assigned Issues
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="hasPullRequests"
+                      className="text-sm font-medium text-black dark:text-white"
+                    >
+                      Has Pull Requests
+                    </label>
+                    <br />
+                    <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="hasPullRequests"
+                          name="hasPullRequests"
+                          checked={hasPullRequests}
+                          onCheckedChange={(checked) =>
+                            onHasPullRequestsChange(checked as boolean)
+                          }
+                          className="form-checkbox w-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 dark:focus:ring-blue-400"
+                        />
+                        <label
+                          htmlFor="hasPullRequests"
+                          className="text-sm font-medium leading-none text-black dark:text-white peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Include Issues with Pull Requests
                         </label>
                       </div>
                     </div>
