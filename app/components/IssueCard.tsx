@@ -96,9 +96,6 @@ export function IssueCard({ issue }: IssueCardProps) {
           >
             {issue.title}
           </a>
-          <Badge variant="secondary">
-            {getBeginnerFriendlyLabel(issue.labels)}
-          </Badge>
         </div>
         <Separator className="my-4" />
         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
