@@ -1,5 +1,3 @@
-// github.ts
-
 import { graphql } from "@octokit/graphql"
 import { Issue, FilterParams } from "../types"
 
@@ -41,11 +39,14 @@ export async function fetchGitHubIssues(params: FilterParams) {
               totalCount
             }
             labels(first: 10) {
-              nodes {
+      nodes {
                 name
               }
             }
             comments {
+              totalCount
+            }
+            timelineItems(first: 1, itemTypes: [CROSS_REFERENCED_EVENT]) {
               totalCount
             }
           }
@@ -57,6 +58,11 @@ export async function fetchGitHubIssues(params: FilterParams) {
   let queryString = 'is:open is:issue label:"good first issue"'
   if (params.language) queryString += ` language:${params.language}`
   if (!params.isAssigned) queryString += " no:assignee"
+  if (params.hasPullRequests) {
+    queryString += " linked:pr"
+  } else {
+    queryString += " -linked:pr"
+  }
   queryString += " sort:created-desc"
 
   const variables = {
@@ -83,6 +89,7 @@ export async function fetchGitHubIssues(params: FilterParams) {
       is_assigned: issue.assignees.totalCount > 0,
       labels: issue.labels.nodes.map((label: any) => label.name),
       comments_count: issue.comments.totalCount,
+      has_pull_requests: issue.timelineItems.totalCount > 0,
     }))
 
   return {

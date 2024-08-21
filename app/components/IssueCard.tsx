@@ -2,7 +2,14 @@ import { Issue } from "~/types"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Star, Calendar, Code, Tag, MessageSquare } from "lucide-react"
+import {
+  Star,
+  Calendar,
+  Code,
+  Tag,
+  MessageSquare,
+  GitPullRequest,
+} from "lucide-react"
 
 type IssueCardProps = {
   issue: Issue
@@ -92,6 +99,10 @@ export function IssueCard({ issue }: IssueCardProps) {
           </span>
           <span className="flex items-center">
             <MessageSquare className="w-4 h-4 mr-1" /> {issue.comments_count}
+          </span>
+          <span className="flex items-center">
+            <GitPullRequest className="w-4 h-4 mr-1" />{" "}
+            {issue.pull_requests_count}
           </span>
           {issue.is_assigned && <Badge variant="outline">Assigned</Badge>}
         </div>
