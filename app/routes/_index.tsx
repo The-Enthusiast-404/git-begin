@@ -199,7 +199,7 @@ export default function Index() {
               <IssueCard
                 key={`${issue.id}-${index}`}
                 issue={issue}
-                service={service}
+                showPullRequests={hasPullRequests}
               />
             ))}
           </div>
