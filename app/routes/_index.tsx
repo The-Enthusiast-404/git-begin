@@ -2,19 +2,20 @@ import { json, LoaderFunction } from "@remix-run/node"
 import { useLoaderData, useSubmit, useNavigation } from "@remix-run/react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { LoaderData, FilterParams, Service } from "../types"
+import { LoaderData, FilterParams, Service } from "~/types"
 import {
   fetchGitHubIssues,
   fetchGitHubIssuesByCategory,
   fetchGitHubIssuesByFramework,
-} from "../services/github"
+} from "~/services/github"
 import {
   fetchGitLabIssues,
   fetchGitLabIssuesByCategory,
   fetchGitLabIssuesByFramework,
-} from "../services/gitlab"
-import { FilterForm } from "../components/FilterForm"
-import { IssueCard } from "../components/IssueCard"
+} from "~/services/gitlab"
+import { FilterForm } from "~/components/FilterForm"
+import { IssueCard } from "~/components/IssueCard"
+import NavBar from "~/components/NavBar"
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
@@ -146,63 +147,68 @@ export default function Index() {
     navigation.state === "loading" || navigation.state === "submitting"
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        Beginner-Friendly Issues Finder
-      </h1>
-      <FilterForm
-        service={service}
-        minStars={minStars}
-        maxStars={maxStars}
-        language={language}
-        isAssigned={isAssigned}
-        category={category}
-        framework={framework}
-        isLoading={isLoading}
-        onServiceChange={handleServiceChange}
-        onMinStarsChange={setMinStars}
-        onMaxStarsChange={setMaxStars}
-        onLanguageChange={setLanguage}
-        onIsAssignedChange={setIsAssigned}
-        onCategoryChange={setCategory}
-        onFrameworkChange={setFramework}
-        onSubmit={handleSubmit}
-      />
+    <div className="container mx-auto px-4">
+      <NavBar />
 
-      {error && (
-        <div className="mb-4 p-4 bg-red-50 text-red-500 rounded-md">
-          Error: {error}
-        </div>
-      )}
-
-      {allIssues.length === 0 && !error && (
-        <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md">
-          No issues found matching the current criteria. Try adjusting your
-          filters.
-        </div>
-      )}
-
-      <div className="space-y-4">
-        {allIssues.map((issue, index) => (
-          <IssueCard
-            key={`${issue.id}-${index}`}
-            issue={issue}
+      <div className="flex flex-col lg:flex-row lg:space-x-4">
+        <div className="lg:w-1/4">
+          <FilterForm
             service={service}
+            minStars={minStars}
+            maxStars={maxStars}
+            language={language}
+            isAssigned={isAssigned}
+            category={category}
+            framework={framework}
+            isLoading={isLoading}
+            onServiceChange={handleServiceChange}
+            onMinStarsChange={setMinStars}
+            onMaxStarsChange={setMaxStars}
+            onLanguageChange={setLanguage}
+            onIsAssignedChange={setIsAssigned}
+            onCategoryChange={setCategory}
+            onFrameworkChange={setFramework}
+            onSubmit={handleSubmit}
           />
-        ))}
-      </div>
-
-      {hasNextPage && (
-        <div className="flex justify-center mt-6">
-          <Button
-            onClick={handleLoadMore}
-            disabled={isLoading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            {isLoading ? "Loading..." : "Load More"}
-          </Button>
         </div>
-      )}
+
+        <div className="lg:w-3/4">
+          {error && (
+            <div className="mb-4 p-4 bg-red-50 text-red-500 rounded-md">
+              Error: {error}
+            </div>
+          )}
+
+          {allIssues.length === 0 && !error && (
+            <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md">
+              No issues found matching the current criteria. Try adjusting your filters.
+            </div>
+          )}
+
+          <div className="space-y-4">
+            {allIssues.map((issue, index) => (
+              <IssueCard
+                key={`${issue.id}-${index}`}
+                issue={issue}
+                service={service}
+              />
+            ))}
+          </div>
+
+          {hasNextPage && (
+            <div className="flex justify-center mt-6">
+              <Button
+                onClick={handleLoadMore}
+                disabled={isLoading}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                {isLoading ? "Loading..." : "Load More"}
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
+
   )
 }
