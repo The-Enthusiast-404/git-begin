@@ -39,7 +39,7 @@ export async function fetchGitHubIssues(params: FilterParams) {
               totalCount
             }
             labels(first: 10) {
-      nodes {
+              nodes {
                 name
               }
             }
@@ -92,8 +92,13 @@ export async function fetchGitHubIssues(params: FilterParams) {
       has_pull_requests: issue.timelineItems.totalCount > 0,
     }))
 
+  const sortedIssues = issues.sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  )
+
   return {
-    issues,
+    issues: sortedIssues,
     hasNextPage: response.search.pageInfo.hasNextPage,
     endCursor: response.search.pageInfo.endCursor,
   }
