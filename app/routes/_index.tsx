@@ -162,7 +162,7 @@ export default function Index() {
       <main className="flex-grow container mx-auto px-4">
         <div className="flex flex-col lg:flex-row lg:space-x-4">
           <div className="w-full lg:w-1/4 mb-4 lg:mb-0">
-            <div className="lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
+            <div className="lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
               <FilterForm
                 service={service}
                 minStars={minStars}
