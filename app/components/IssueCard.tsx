@@ -1,6 +1,6 @@
 import React from "react"
 import { Issue } from "~/types"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -46,20 +46,6 @@ type IssueCardProps = {
   onToggleBookmark: (issueId: string) => void
 }
 
-const getBeginnerFriendlyLabel = (labels: string[]): string => {
-  const beginnerFriendlyLabels: string[] = [
-    "good first issue",
-    "quick wins",
-    "first timers only",
-    "up for grabs",
-  ]
-  return (
-    labels.find((label) =>
-      beginnerFriendlyLabels.includes(label.toLowerCase())
-    ) || "Beginner Friendly"
-  )
-}
-
 const languageIcons: { [key: string]: JSX.Element } = {
   JavaScript: <NodeJsIcon />,
   TypeScript: <TypeScriptIcon />,
@@ -103,20 +89,17 @@ export function IssueCard({
   return (
     <Card className="border rounded-md hover:shadow-xl transition-shadow duration-300">
       <CardContent className="p-6">
-        <div className="flex items-center justify-between">
+        <div className="mb-2">
           <a
             href={issue.html_url}
             rel="noreferrer"
             target="_blank"
-            className="text-lg font-semibold text-blue-600 hover:underline truncate max-w-[80%]"
+            className="text-lg font-semibold text-blue-600 hover:underline block"
           >
             {issue.title}
           </a>
-          <BookmarkButton
-            isBookmarked={isBookmarked}
-            onClick={() => onToggleBookmark(issue.id)}
-          />
         </div>
+        <p className="text-sm text-gray-600 mb-2">{issue.repository_name}</p>
         <Separator className="my-4" />
         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
           <span className="flex items-center">
@@ -143,8 +126,13 @@ export function IssueCard({
           )}
           {issue.is_assigned && <Badge variant="outline">Assigned</Badge>}
         </div>
-        <p className="mt-2 text-sm text-gray-600">{issue.repository_name}</p>
       </CardContent>
+      <CardFooter className="flex justify-end p-4 bg-gray-50 dark:bg-gray-800">
+        <BookmarkButton
+          isBookmarked={isBookmarked}
+          onClick={() => onToggleBookmark(issue.id)}
+        />
+      </CardFooter>
     </Card>
   )
 }
