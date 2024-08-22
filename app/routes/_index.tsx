@@ -18,6 +18,7 @@ import { IssueCard } from "~/components/IssueCard"
 import NavBar from "~/components/NavBar"
 import Footer from "~/components/Footer"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useBookmarks } from "~/hooks/useBookmarks"
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
@@ -72,7 +73,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function Index() {
   const {
-    issues,
+    issues: initialIssues,
     error,
     hasNextPage,
     endCursor,
@@ -86,9 +87,11 @@ export default function Index() {
   const [category, setCategory] = useState("all")
   const [framework, setFramework] = useState("")
   const [hasPullRequests, setHasPullRequests] = useState(false)
-  const [allIssues, setAllIssues] = useState(issues)
+  const [showBookmarked, setShowBookmarked] = useState(false)
+  const [issues, setIssues] = useState<Issue[]>(initialIssues)
   const submit = useSubmit()
   const navigation = useNavigation()
+  const { bookmarks, toggleBookmark, isBookmarked } = useBookmarks()
 
   useEffect(() => {
     const url = new URL(window.location.href)
@@ -100,11 +103,19 @@ export default function Index() {
     setCategory(url.searchParams.get("category") || "all")
     setFramework(url.searchParams.get("framework") || "")
     setHasPullRequests(url.searchParams.get("hasPullRequests") === "true")
+    setShowBookmarked(url.searchParams.get("showBookmarked") === "true")
   }, [])
 
   useEffect(() => {
-    setAllIssues((prevIssues) => [...prevIssues, ...issues])
-  }, [issues])
+    if (showBookmarked) {
+      // When showing bookmarks, filter the issues to only show bookmarked ones
+      const bookmarkedIssues = issues.filter((issue) => isBookmarked(issue.id))
+      setIssues(bookmarkedIssues)
+    } else {
+      // When not showing bookmarks, use the initial issues from the loader
+      setIssues(initialIssues)
+    }
+  }, [initialIssues, showBookmarked, isBookmarked])
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -119,7 +130,8 @@ export default function Index() {
       formData.delete("framework")
     }
     formData.set("hasPullRequests", hasPullRequests.toString())
-    setAllIssues([])
+    formData.set("showBookmarked", showBookmarked.toString())
+    setIssues([])
     submit(formData, { method: "get" })
   }
 
@@ -133,6 +145,7 @@ export default function Index() {
     formData.set("category", category)
     formData.set("framework", framework)
     formData.set("hasPullRequests", hasPullRequests.toString())
+    formData.set("showBookmarked", showBookmarked.toString())
     formData.set("cursor", endCursor || "")
     submit(formData, { method: "get" })
   }
@@ -148,8 +161,21 @@ export default function Index() {
     formData.set("category", category)
     formData.set("framework", framework)
     formData.set("hasPullRequests", hasPullRequests.toString())
-    setAllIssues([])
+    formData.set("showBookmarked", showBookmarked.toString())
+    setIssues([])
     submit(formData, { method: "get" })
+  }
+
+  const handleToggleBookmark = (issueId: string) => {
+    toggleBookmark(issueId)
+    if (showBookmarked) {
+      // If we're showing bookmarks, remove the issue from the list if it's unbookmarked
+      setIssues((prevIssues) =>
+        prevIssues.filter(
+          (issue) => issue.id !== issueId || isBookmarked(issue.id)
+        )
+      )
+    }
   }
 
   const isLoading =
@@ -172,6 +198,7 @@ export default function Index() {
                 category={category}
                 framework={framework}
                 hasPullRequests={hasPullRequests}
+                showBookmarked={showBookmarked}
                 isLoading={isLoading}
                 onServiceChange={handleServiceChange}
                 onMinStarsChange={setMinStars}
@@ -181,6 +208,7 @@ export default function Index() {
                 onCategoryChange={setCategory}
                 onFrameworkChange={setFramework}
                 onHasPullRequestsChange={setHasPullRequests}
+                onShowBookmarkedChange={setShowBookmarked}
                 onSubmit={handleSubmit}
               />
             </div>
@@ -193,24 +221,27 @@ export default function Index() {
                   Error: {error}
                 </div>
               )}
-              {allIssues.length === 0 && !error && !isLoading && (
+              {issues.length === 0 && !error && !isLoading && (
                 <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md">
-                  No issues found matching the current criteria. Try adjusting
-                  your filters.
+                  {showBookmarked
+                    ? "No bookmarked issues found. Try bookmarking some issues first."
+                    : "No issues found matching the current criteria. Try adjusting your filters."}
                 </div>
               )}
               <div className="space-y-4 p-4">
-                {allIssues.map((issue, index) => (
+                {issues.map((issue) => (
                   <IssueCard
-                    key={`${issue.id}-${index}`}
+                    key={issue.id}
                     issue={issue}
                     showPullRequests={hasPullRequests}
+                    isBookmarked={isBookmarked(issue.id)}
+                    onToggleBookmark={handleToggleBookmark}
                   />
                 ))}
               </div>
             </ScrollArea>
 
-            {hasNextPage && (
+            {!showBookmarked && hasNextPage && (
               <div className="flex justify-center mt-6 mb-6">
                 <Button
                   onClick={handleLoadMore}
