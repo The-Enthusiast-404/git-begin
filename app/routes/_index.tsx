@@ -73,7 +73,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function Index() {
   const {
-    issues,
+    issues: initialIssues,
     error,
     hasNextPage,
     endCursor,
@@ -88,7 +88,7 @@ export default function Index() {
   const [framework, setFramework] = useState("")
   const [hasPullRequests, setHasPullRequests] = useState(false)
   const [showBookmarked, setShowBookmarked] = useState(false)
-  const [allIssues, setAllIssues] = useState(issues)
+  const [issues, setIssues] = useState<Issue[]>(initialIssues)
   const submit = useSubmit()
   const navigation = useNavigation()
   const { bookmarks, toggleBookmark, isBookmarked } = useBookmarks()
@@ -107,8 +107,15 @@ export default function Index() {
   }, [])
 
   useEffect(() => {
-    setAllIssues((prevIssues) => [...prevIssues, ...issues])
-  }, [issues])
+    if (showBookmarked) {
+      // When showing bookmarks, filter the issues to only show bookmarked ones
+      const bookmarkedIssues = issues.filter((issue) => isBookmarked(issue.id))
+      setIssues(bookmarkedIssues)
+    } else {
+      // When not showing bookmarks, use the initial issues from the loader
+      setIssues(initialIssues)
+    }
+  }, [initialIssues, showBookmarked, isBookmarked])
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -124,7 +131,7 @@ export default function Index() {
     }
     formData.set("hasPullRequests", hasPullRequests.toString())
     formData.set("showBookmarked", showBookmarked.toString())
-    setAllIssues([])
+    setIssues([])
     submit(formData, { method: "get" })
   }
 
@@ -155,13 +162,21 @@ export default function Index() {
     formData.set("framework", framework)
     formData.set("hasPullRequests", hasPullRequests.toString())
     formData.set("showBookmarked", showBookmarked.toString())
-    setAllIssues([])
+    setIssues([])
     submit(formData, { method: "get" })
   }
 
-  const filteredIssues = showBookmarked
-    ? allIssues.filter((issue) => isBookmarked(issue.id))
-    : allIssues
+  const handleToggleBookmark = (issueId: string) => {
+    toggleBookmark(issueId)
+    if (showBookmarked) {
+      // If we're showing bookmarks, remove the issue from the list if it's unbookmarked
+      setIssues((prevIssues) =>
+        prevIssues.filter(
+          (issue) => issue.id !== issueId || isBookmarked(issue.id)
+        )
+      )
+    }
+  }
 
   const isLoading =
     navigation.state === "loading" || navigation.state === "submitting"
@@ -206,26 +221,27 @@ export default function Index() {
                   Error: {error}
                 </div>
               )}
-              {filteredIssues.length === 0 && !error && !isLoading && (
+              {issues.length === 0 && !error && !isLoading && (
                 <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md">
-                  No issues found matching the current criteria. Try adjusting
-                  your filters.
+                  {showBookmarked
+                    ? "No bookmarked issues found. Try bookmarking some issues first."
+                    : "No issues found matching the current criteria. Try adjusting your filters."}
                 </div>
               )}
               <div className="space-y-4 p-4">
-                {filteredIssues.map((issue, index) => (
+                {issues.map((issue) => (
                   <IssueCard
-                    key={`${issue.id}-${index}`}
+                    key={issue.id}
                     issue={issue}
                     showPullRequests={hasPullRequests}
                     isBookmarked={isBookmarked(issue.id)}
-                    onToggleBookmark={toggleBookmark}
+                    onToggleBookmark={handleToggleBookmark}
                   />
                 ))}
               </div>
             </ScrollArea>
 
-            {hasNextPage && (
+            {!showBookmarked && hasNextPage && (
               <div className="flex justify-center mt-6 mb-6">
                 <Button
                   onClick={handleLoadMore}
