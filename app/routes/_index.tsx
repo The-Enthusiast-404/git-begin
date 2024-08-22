@@ -18,6 +18,7 @@ import { IssueCard } from "~/components/IssueCard"
 import NavBar from "~/components/NavBar"
 import Footer from "~/components/Footer"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useBookmarks } from "~/hooks/useBookmarks"
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
@@ -86,9 +87,11 @@ export default function Index() {
   const [category, setCategory] = useState("all")
   const [framework, setFramework] = useState("")
   const [hasPullRequests, setHasPullRequests] = useState(false)
+  const [showBookmarked, setShowBookmarked] = useState(false)
   const [allIssues, setAllIssues] = useState(issues)
   const submit = useSubmit()
   const navigation = useNavigation()
+  const { bookmarks, toggleBookmark, isBookmarked } = useBookmarks()
 
   useEffect(() => {
     const url = new URL(window.location.href)
@@ -100,6 +103,7 @@ export default function Index() {
     setCategory(url.searchParams.get("category") || "all")
     setFramework(url.searchParams.get("framework") || "")
     setHasPullRequests(url.searchParams.get("hasPullRequests") === "true")
+    setShowBookmarked(url.searchParams.get("showBookmarked") === "true")
   }, [])
 
   useEffect(() => {
@@ -119,6 +123,7 @@ export default function Index() {
       formData.delete("framework")
     }
     formData.set("hasPullRequests", hasPullRequests.toString())
+    formData.set("showBookmarked", showBookmarked.toString())
     setAllIssues([])
     submit(formData, { method: "get" })
   }
@@ -133,6 +138,7 @@ export default function Index() {
     formData.set("category", category)
     formData.set("framework", framework)
     formData.set("hasPullRequests", hasPullRequests.toString())
+    formData.set("showBookmarked", showBookmarked.toString())
     formData.set("cursor", endCursor || "")
     submit(formData, { method: "get" })
   }
@@ -148,9 +154,14 @@ export default function Index() {
     formData.set("category", category)
     formData.set("framework", framework)
     formData.set("hasPullRequests", hasPullRequests.toString())
+    formData.set("showBookmarked", showBookmarked.toString())
     setAllIssues([])
     submit(formData, { method: "get" })
   }
+
+  const filteredIssues = showBookmarked
+    ? allIssues.filter((issue) => isBookmarked(issue.id))
+    : allIssues
 
   const isLoading =
     navigation.state === "loading" || navigation.state === "submitting"
@@ -172,6 +183,7 @@ export default function Index() {
                 category={category}
                 framework={framework}
                 hasPullRequests={hasPullRequests}
+                showBookmarked={showBookmarked}
                 isLoading={isLoading}
                 onServiceChange={handleServiceChange}
                 onMinStarsChange={setMinStars}
@@ -181,6 +193,7 @@ export default function Index() {
                 onCategoryChange={setCategory}
                 onFrameworkChange={setFramework}
                 onHasPullRequestsChange={setHasPullRequests}
+                onShowBookmarkedChange={setShowBookmarked}
                 onSubmit={handleSubmit}
               />
             </div>
@@ -193,18 +206,20 @@ export default function Index() {
                   Error: {error}
                 </div>
               )}
-              {allIssues.length === 0 && !error && !isLoading && (
+              {filteredIssues.length === 0 && !error && !isLoading && (
                 <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md">
                   No issues found matching the current criteria. Try adjusting
                   your filters.
                 </div>
               )}
               <div className="space-y-4 p-4">
-                {allIssues.map((issue, index) => (
+                {filteredIssues.map((issue, index) => (
                   <IssueCard
                     key={`${issue.id}-${index}`}
                     issue={issue}
                     showPullRequests={hasPullRequests}
+                    isBookmarked={isBookmarked(issue.id)}
+                    onToggleBookmark={toggleBookmark}
                   />
                 ))}
               </div>

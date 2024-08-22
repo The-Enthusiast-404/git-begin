@@ -32,6 +32,7 @@ type FilterFormProps = {
   category: string
   framework: string
   hasPullRequests: boolean
+  showBookmarked: boolean
   isLoading: boolean
   onServiceChange: (value: Service) => void
   onMinStarsChange: (value: string) => void
@@ -41,6 +42,7 @@ type FilterFormProps = {
   onCategoryChange: (value: string) => void
   onFrameworkChange: (value: string) => void
   onHasPullRequestsChange: (value: boolean) => void
+  onShowBookmarkedChange: (value: boolean) => void
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
 }
 
@@ -53,6 +55,7 @@ export function FilterForm({
   category,
   framework,
   hasPullRequests,
+  showBookmarked,
   isLoading,
   onServiceChange,
   onMinStarsChange,
@@ -62,6 +65,7 @@ export function FilterForm({
   onCategoryChange,
   onFrameworkChange,
   onHasPullRequestsChange,
+  onShowBookmarkedChange,
   onSubmit,
 }: FilterFormProps) {
   return (
@@ -255,6 +259,35 @@ export function FilterForm({
                           className="text-sm font-medium leading-none text-black dark:text-white peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                         >
                           Include Issues with Pull Requests
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="showBookmarked"
+                      className="text-sm font-medium text-black dark:text-white"
+                    >
+                      Show Bookmarked
+                    </label>
+                    <br />
+                    <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="showBookmarked"
+                          name="showBookmarked"
+                          checked={showBookmarked}
+                          onCheckedChange={(checked) =>
+                            onShowBookmarkedChange(checked as boolean)
+                          }
+                          className="form-checkbox w-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 dark:focus:ring-blue-400"
+                        />
+                        <label
+                          htmlFor="showBookmarked"
+                          className="text-sm font-medium leading-none text-black dark:text-white peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Show Only Bookmarked Issues
                         </label>
                       </div>
                     </div>

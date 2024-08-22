@@ -37,10 +37,13 @@ import {
   HaskellIcon,
   DartIcon,
 } from "app/icons"
+import BookmarkButton from "./BookmarkButton"
 
 type IssueCardProps = {
   issue: Issue
   showPullRequests: boolean
+  isBookmarked: boolean
+  onToggleBookmark: (issueId: string) => void
 }
 
 const getBeginnerFriendlyLabel = (labels: string[]): string => {
@@ -84,7 +87,12 @@ const languageIcons: { [key: string]: JSX.Element } = {
   Dart: <DartIcon />,
 }
 
-export function IssueCard({ issue, showPullRequests }: IssueCardProps) {
+export function IssueCard({
+  issue,
+  showPullRequests,
+  isBookmarked,
+  onToggleBookmark,
+}: IssueCardProps) {
   const LanguageIcon =
     issue.language && languageIcons[issue.language] ? (
       languageIcons[issue.language]
@@ -104,6 +112,10 @@ export function IssueCard({ issue, showPullRequests }: IssueCardProps) {
           >
             {issue.title}
           </a>
+          <BookmarkButton
+            isBookmarked={isBookmarked}
+            onClick={() => onToggleBookmark(issue.id)}
+          />
         </div>
         <Separator className="my-4" />
         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
