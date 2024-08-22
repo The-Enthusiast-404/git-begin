@@ -187,7 +187,7 @@ export default function Index() {
           </div>
 
           <div className="flex-1 lg:overflow-hidden">
-            <ScrollArea className="h-[calc(100vh-16rem)] lg:h-[calc(100vh-8rem)] scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 dark:scrollbar-thumb-blue-700 dark:scrollbar-track-blue-300">
+            <ScrollArea className="h-[calc(100vh-16rem)] lg:h-[calc(100vh-8rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-100 dark:scrollbar-thumb-blue-700 dark:scrollbar-track-gray-800">
               {error && (
                 <div className="mb-4 p-4 bg-red-50 text-red-500 rounded-md">
                   Error: {error}
@@ -209,6 +209,7 @@ export default function Index() {
                 ))}
               </div>
             </ScrollArea>
+
             {hasNextPage && (
               <div className="flex justify-center mt-6 mb-6">
                 <Button
