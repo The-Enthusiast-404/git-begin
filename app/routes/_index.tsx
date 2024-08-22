@@ -51,6 +51,7 @@ export const loader: LoaderFunction = async ({ request }) => {
           ? await fetchGitHubIssues(params)
           : await fetchGitLabIssues(params)
     }
+    console.log("Loader data:", data) // Debug log
     return json({ ...data, service: params.service })
   } catch (error) {
     console.error("Error fetching issues:", error)
@@ -102,8 +103,8 @@ export default function Index() {
   }, [])
 
   useEffect(() => {
-    setAllIssues(issues)
-  }, [issues, service])
+    setAllIssues((prevIssues) => [...prevIssues, ...issues])
+  }, [issues])
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -193,7 +194,7 @@ export default function Index() {
                 </div>
               )}
 
-              {allIssues.length === 0 && !error && (
+              {allIssues.length === 0 && !error && !isLoading && (
                 <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md">
                   No issues found matching the current criteria. Try adjusting
                   your filters.
