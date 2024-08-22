@@ -187,20 +187,18 @@ export default function Index() {
           </div>
 
           <div className="flex-1 lg:overflow-hidden">
-            <ScrollArea className="h-full lg:h-[calc(100vh-2rem)]">
+            <ScrollArea className="h-[calc(100vh-16rem)] lg:h-[calc(100vh-8rem)] scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 dark:scrollbar-thumb-blue-700 dark:scrollbar-track-blue-300">
               {error && (
                 <div className="mb-4 p-4 bg-red-50 text-red-500 rounded-md">
                   Error: {error}
                 </div>
               )}
-
               {allIssues.length === 0 && !error && !isLoading && (
                 <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md">
                   No issues found matching the current criteria. Try adjusting
                   your filters.
                 </div>
               )}
-
               <div className="space-y-4 p-4">
                 {allIssues.map((issue, index) => (
                   <IssueCard
@@ -210,19 +208,18 @@ export default function Index() {
                   />
                 ))}
               </div>
-
-              {hasNextPage && (
-                <div className="flex justify-center mt-6 mb-6">
-                  <Button
-                    onClick={handleLoadMore}
-                    disabled={isLoading}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    {isLoading ? "Loading..." : "Load More"}
-                  </Button>
-                </div>
-              )}
             </ScrollArea>
+            {hasNextPage && (
+              <div className="flex justify-center mt-6 mb-6">
+                <Button
+                  onClick={handleLoadMore}
+                  disabled={isLoading}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  {isLoading ? "Loading..." : "Load More"}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </main>
