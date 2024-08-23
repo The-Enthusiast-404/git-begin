@@ -1,40 +1,102 @@
-# Welcome to Remix!
+# Git Begin
 
-- 📖 [Remix docs](https://remix.run/docs)
+Git Begin is a web application designed to help developers find and track their first open-source contributions. It simplifies the process of discovering "good first issues" across various projects and technologies.
 
-## Development
 
-Run the dev server:
 
-```shellscript
-npm run dev
-```
+## Live Demo
 
-## Deployment
+https://gitbegin.theenthusiast.dev
 
-First, build your app for production:
+## Features
 
-```sh
-npm run build
-```
+- Find "good first issues" on GitHub (GitLab integration coming soon)
+- Filter issues by programming language, star count, and assignment status
+- Browse issues by category (Web Dev, Mobile Dev, Data Science, ML, DevOps, Cybersecurity, Documentation)
+- Search for issues in specific frameworks or libraries
+- Bookmark interesting issues for later (stored in localStorage)
+- Dark/Light mode toggle for comfortable browsing
 
-Then run the app in production mode:
+## Tech Stack
 
-```sh
-npm start
-```
+- [Remix.js](https://remix.run/)
+- [React](https://reactjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
 
-Now you'll need to pick a host to deploy it to.
+## Getting Started
 
-### DIY
+### Prerequisites
 
-If you're familiar with deploying Node applications, the built-in Remix app server is production-ready.
+- Node.js (v14 or later)
+- npm or yarn
 
-Make sure to deploy the output of `npm run build`
+### Installation
 
-- `build/server`
-- `build/client`
+1. Clone the repository:
+   ```
+   git clone https://github.com/your-username/git-begin.git
+   ```
 
-## Styling
+2. Navigate to the project directory:
+   ```
+   cd git-begin
+   ```
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.
+3. Install dependencies:
+   ```
+   npm install
+   ```
+   or
+   ```
+   yarn install
+   ```
+
+4. Create a `.env` file in the root directory and add your GitHub API key:
+   ```
+   GITHUB_API_KEY=your_github_api_key_here
+   ```
+
+5. Start the development server:
+   ```
+   npm run dev
+   ```
+   or
+   ```
+   yarn dev
+   ```
+
+6. Open your browser and visit `http://localhost:3000`
+
+## Usage
+
+1. Use the filters on the left sidebar to narrow down issues by language, star count, or category.
+2. Click on an issue to view more details.
+3. Use the bookmark button to save interesting issues for later.
+4. Toggle between light and dark mode using the theme switch in the top right corner.
+
+## Contributing
+
+We welcome contributions to Git Begin! Please follow these steps:
+
+1. Fork the repository
+2. Create a new branch: `git checkout -b feature/your-feature-name`
+3. Make your changes and commit them: `git commit -m 'Add some feature'`
+4. Push to the branch: `git push origin feature/your-feature-name`
+5. Submit a pull request
+
+Please read our [Contributing Guidelines](CONTRIBUTING.md) for more details.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Thanks to all the open-source projects that make Git Begin possible.
+- Special thanks to the GitHub API for providing access to issue data.
+
+## Contact
+
+[Your Name] - [Your Email]
+
+Project Link: [https://github.com/your-username/git-begin](https://github.com/your-username/git-begin)
