@@ -34,7 +34,7 @@ https://gitbegin.theenthusiast.dev
 
 1. Clone the repository:
    ```
-   git clone https://github.com/your-username/git-begin.git
+   git clone [https://github.com/your-username/git-begin.git](https://github.com/The-Enthusiast-404/git-begin.git)
    ```
 
 2. Navigate to the project directory:
@@ -65,7 +65,7 @@ https://gitbegin.theenthusiast.dev
    yarn dev
    ```
 
-6. Open your browser and visit `http://localhost:3000`
+6. Open your browser and visit `http://localhost:5173`
 
 ## Usage
 
@@ -97,6 +97,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-[Your Name] - [Your Email]
+Email - issahil404@gmail.com
 
-Project Link: [https://github.com/your-username/git-begin](https://github.com/your-username/git-begin)
+Project Link: [https://github.com/your-username/git-begin](https://github.com/The-Enthusiast-404/git-begin)
