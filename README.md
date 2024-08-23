@@ -23,7 +23,7 @@ https://gitbegin.theenthusiast.dev
 - [Remix.js](https://remix.run/)
 - [React](https://reactjs.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
-
+- [ShadCN UI](https://ui.shadcn.com/)
 ## Getting Started
 
 ### Prerequisites
