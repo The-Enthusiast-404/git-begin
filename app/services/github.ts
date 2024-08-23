@@ -59,7 +59,11 @@ export async function fetchGitHubIssues(params: FilterParams) {
 
   let queryString = 'is:open is:issue label:"good first issue"'
   if (params.language) queryString += ` language:${params.language}`
-  if (!params.isAssigned) queryString += " no:assignee"
+  if (params.isAssigned) {
+    queryString += " assigned:*"
+  } else {
+    queryString += " no:assignee"
+  }
   if (params.hasPullRequests) {
     queryString += " linked:pr"
   } else {
