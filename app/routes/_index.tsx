@@ -131,6 +131,7 @@ export default function Index() {
     }
     formData.set("hasPullRequests", hasPullRequests.toString())
     formData.set("showBookmarked", showBookmarked.toString())
+    formData.set("isAssigned", isAssigned.toString())
     setIssues([])
     submit(formData, { method: "get" })
   }
