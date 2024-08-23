@@ -5,7 +5,7 @@ Git Begin is a web application designed to help developers find and track their 
 <img width="1822" alt="Screenshot 2024-08-23 at 19 04 37" src="https://github.com/user-attachments/assets/25719a7e-f0d4-419a-a01e-2739971b2125">
 
 
-## Live Demo
+## Live
 
 https://gitbegin.theenthusiast.dev
 
