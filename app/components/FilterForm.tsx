@@ -27,6 +27,7 @@ type FilterFormProps = {
   service: Service
   minStars: string
   maxStars: string
+  minForks: string
   language: string
   isAssigned: boolean
   category: string
@@ -37,6 +38,7 @@ type FilterFormProps = {
   onServiceChange: (value: Service) => void
   onMinStarsChange: (value: string) => void
   onMaxStarsChange: (value: string) => void
+  onMinForksChange: (value: string) => void
   onLanguageChange: (value: string) => void
   onIsAssignedChange: (value: boolean) => void
   onCategoryChange: (value: string) => void
@@ -50,6 +52,7 @@ export function FilterForm({
   service,
   minStars,
   maxStars,
+  minForks,
   language,
   isAssigned,
   category,
@@ -60,6 +63,7 @@ export function FilterForm({
   onServiceChange,
   onMinStarsChange,
   onMaxStarsChange,
+  onMinForksChange,
   onLanguageChange,
   onIsAssignedChange,
   onCategoryChange,
@@ -134,6 +138,7 @@ export function FilterForm({
                       type="number"
                       id="minStars"
                       name="minStars"
+                      min="0"
                       value={minStars}
                       onChange={(e) => onMinStarsChange(e.target.value)}
                       className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
@@ -149,6 +154,20 @@ export function FilterForm({
                       name="maxStars"
                       value={maxStars}
                       onChange={(e) => onMaxStarsChange(e.target.value)}
+                      className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="minStars" className="text-sm font-medium">
+                      Min Forks
+                    </label>
+                    <Input
+                      type="number"
+                      id="minForks"
+                      name="minForks"
+                      value={minForks}
+                      min="0"
+                      onChange={(e) => onMinForksChange(e.target.value)}
                       className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
                     />
                   </div>

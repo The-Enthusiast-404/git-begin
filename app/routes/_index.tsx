@@ -26,6 +26,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     service: (url.searchParams.get("service") || "github") as Service,
     minStars: parseInt(url.searchParams.get("minStars") || "0", 10),
     maxStars: parseInt(url.searchParams.get("maxStars") || "1000000", 10),
+    minForks: parseInt(url.searchParams.get("minForks") || "0", 10),
     language: url.searchParams.get("language") || "",
     isAssigned: url.searchParams.get("isAssigned") === "true",
     cursor: url.searchParams.get("cursor") || null,
@@ -82,6 +83,7 @@ export default function Index() {
   const [service, setService] = useState<Service>(initialService)
   const [minStars, setMinStars] = useState("0")
   const [maxStars, setMaxStars] = useState("1000000")
+  const [minForks, setMinForks] = useState("0")
   const [language, setLanguage] = useState("")
   const [isAssigned, setIsAssigned] = useState(false)
   const [category, setCategory] = useState("all")
@@ -98,6 +100,7 @@ export default function Index() {
     setService((url.searchParams.get("service") || "github") as Service)
     setMinStars(url.searchParams.get("minStars") || "0")
     setMaxStars(url.searchParams.get("maxStars") || "1000000")
+    setMinForks(url.searchParams.get("minForks") || "0")
     setLanguage(url.searchParams.get("language") || "")
     setIsAssigned(url.searchParams.get("isAssigned") === "true")
     setCategory(url.searchParams.get("category") || "all")
@@ -141,6 +144,7 @@ export default function Index() {
     formData.set("service", service)
     formData.set("minStars", minStars)
     formData.set("maxStars", maxStars)
+    formData.set("minForks", minForks)
     formData.set("language", language)
     formData.set("isAssigned", isAssigned.toString())
     formData.set("category", category)
@@ -157,6 +161,7 @@ export default function Index() {
     formData.set("service", newService)
     formData.set("minStars", minStars)
     formData.set("maxStars", maxStars)
+    formData.set("minForks", minForks)
     formData.set("language", language)
     formData.set("isAssigned", isAssigned.toString())
     formData.set("category", category)
@@ -194,6 +199,7 @@ export default function Index() {
                 service={service}
                 minStars={minStars}
                 maxStars={maxStars}
+                minForks={minForks}
                 language={language}
                 isAssigned={isAssigned}
                 category={category}
@@ -204,6 +210,7 @@ export default function Index() {
                 onServiceChange={handleServiceChange}
                 onMinStarsChange={setMinStars}
                 onMaxStarsChange={setMaxStars}
+                onMinForksChange={setMinForks}
                 onLanguageChange={setLanguage}
                 onIsAssignedChange={setIsAssigned}
                 onCategoryChange={setCategory}

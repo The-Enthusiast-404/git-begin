@@ -33,6 +33,7 @@ export async function fetchGitHubIssues(params: FilterParams) {
               nameWithOwner
               url
               stargazerCount
+              forkCount
               primaryLanguage {
                 name
               }
@@ -81,7 +82,8 @@ export async function fetchGitHubIssues(params: FilterParams) {
   const issues: Issue[] = response.search.nodes
     .filter((issue: any) => {
       const stars = issue.repository.stargazerCount
-      return stars >= params.minStars && stars <= params.maxStars
+      const forks = issue.repository.forkCount
+      return stars >= params.minStars && stars <= params.maxStars && forks >= params.minForks
     })
     .map((issue: any) => ({
       id: issue.url,
@@ -91,6 +93,7 @@ export async function fetchGitHubIssues(params: FilterParams) {
       repository_url: issue.repository.url,
       repository_name: issue.repository.nameWithOwner,
       stars_count: issue.repository.stargazerCount,
+      fork_count: issue.repository.forkCount,
       language: issue.repository.primaryLanguage?.name || null,
       is_assigned: issue.assignees.totalCount > 0,
       labels: issue.labels.nodes.map((label: any) => label.name),
@@ -134,6 +137,7 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
             nameWithOwner
             url
             stargazerCount
+            forkCount
             primaryLanguage {
               name
             }
@@ -164,6 +168,7 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
   let queryString = "is:public archived:false"
   if (params.language) queryString += ` language:${params.language}`
   queryString += ` stars:${params.minStars}..${params.maxStars}`
+  queryString += ` forks:>=${params.minForks}`
 
   if (params.category && params.category !== "all") {
     switch (params.category) {
@@ -216,6 +221,7 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
           repository_url: repo.url,
           repository_name: repo.nameWithOwner,
           stars_count: repo.stargazerCount,
+          forkCount: repo.forkCount,
           language: repo.primaryLanguage?.name || null,
           is_assigned: issue.assignees.totalCount > 0,
           labels: issue.labels.nodes.map((label: any) => label.name),
@@ -267,6 +273,7 @@ export async function fetchGitHubIssuesByFramework(params: FilterParams) {
             nameWithOwner
             url
             stargazerCount
+            forkCount
             primaryLanguage {
               name
             }
@@ -297,6 +304,7 @@ export async function fetchGitHubIssuesByFramework(params: FilterParams) {
   let queryString = `topic:${params.framework} is:public archived:false`
   if (params.language) queryString += ` language:${params.language}`
   queryString += ` stars:${params.minStars}..${params.maxStars}`
+  queryString += ` forks:>=${params.minForks}`
 
   console.log("GitHub framework query string:", queryString)
 
@@ -323,6 +331,7 @@ export async function fetchGitHubIssuesByFramework(params: FilterParams) {
           repository_url: repo.url,
           repository_name: repo.nameWithOwner,
           stars_count: repo.stargazerCount,
+          forkCount: repo.forkCount,
           language: repo.primaryLanguage?.name || null,
           is_assigned: issue.assignees.totalCount > 0,
           labels: issue.labels.nodes.map((label: any) => label.name),
