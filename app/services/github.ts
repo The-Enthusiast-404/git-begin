@@ -57,7 +57,7 @@ export async function fetchGitHubIssues(params: FilterParams) {
     }
   `
 
-  let queryString = 'is:open is:issue label:"good first issue"'
+  let queryString = 'is:open is:issue label:"good first issue" archived:false'
   if (params.language) queryString += ` language:${params.language}`
   if (params.isAssigned) {
     queryString += " assigned:*"
@@ -161,7 +161,7 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
     }
   `
 
-  let queryString = "is:public"
+  let queryString = "is:public archived:false"
   if (params.language) queryString += ` language:${params.language}`
   queryString += ` stars:${params.minStars}..${params.maxStars}`
 
@@ -294,7 +294,7 @@ export async function fetchGitHubIssuesByFramework(params: FilterParams) {
     }
   `
 
-  let queryString = `topic:${params.framework} is:public`
+  let queryString = `topic:${params.framework} is:public archived:false`
   if (params.language) queryString += ` language:${params.language}`
   queryString += ` stars:${params.minStars}..${params.maxStars}`
 
