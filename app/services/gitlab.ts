@@ -57,7 +57,9 @@ export async function fetchGitLabIssues(params: FilterParams) {
         created_at: issue.created_at,
         repository_url: projectData.web_url,
         repository_name: projectData.name_with_namespace,
+        archived: projectData.archived,
         stars_count: projectData.star_count,
+        forks_count: projectData.forks_count,
         language: projectData.repository_language,
         is_assigned: issue.assignees.length > 0,
         labels: issue.labels,
@@ -69,7 +71,9 @@ export async function fetchGitLabIssues(params: FilterParams) {
   const filteredIssues = issues.filter(
     (issue) =>
       issue.stars_count >= params.minStars &&
-      issue.stars_count <= params.maxStars
+      issue.stars_count <= params.maxStars &&
+      issue.forks_count >= params.minForks && 
+      issue.archived != true
   )
 
   return {
@@ -141,7 +145,9 @@ export async function fetchGitLabIssuesByCategory(params: FilterParams) {
         created_at: issue.created_at,
         repository_url: project.web_url,
         repository_name: project.name_with_namespace,
+        archived: project.archived,
         stars_count: project.star_count,
+        forks_count: project.forks_count,
         language: project.repository_language,
         is_assigned: issue.assignees.length > 0,
         labels: issue.labels,
@@ -154,6 +160,8 @@ export async function fetchGitLabIssuesByCategory(params: FilterParams) {
     (issue) =>
       issue.stars_count >= params.minStars &&
       issue.stars_count <= params.maxStars &&
+      issue.forks_count >= params.minForks &&
+      issue.archived != true &&
       (params.isAssigned || !issue.is_assigned)
   )
 
@@ -238,7 +246,9 @@ export async function fetchGitLabIssuesByFramework(params: FilterParams) {
         created_at: issue.created_at,
         repository_url: project.web_url,
         repository_name: project.name_with_namespace,
+        archived: project.archived,
         stars_count: project.star_count,
+        forks_count: project.forks_count,
         language: project.repository_language,
         is_assigned: issue.assignees.length > 0,
         labels: issue.labels,
@@ -251,6 +261,8 @@ export async function fetchGitLabIssuesByFramework(params: FilterParams) {
     (issue) =>
       issue.stars_count >= params.minStars &&
       issue.stars_count <= params.maxStars &&
+      issue.forks_count >= params.minForks &&
+      issue.archived != true &&
       (params.isAssigned || !issue.is_assigned)
   )
 
