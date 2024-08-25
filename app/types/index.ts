@@ -6,7 +6,9 @@ export type Issue = {
   created_at: string
   repository_url: string
   repository_name: string
+  archived: boolean
   stars_count: number
+  fork_count: number
   language: string | null
   is_assigned: boolean
   labels: string[]
@@ -27,6 +29,7 @@ export type FilterParams = {
   service: Service
   minStars: number
   maxStars: number
+  minForks: number
   language: string
   isAssigned: boolean
   cursor: string | null
