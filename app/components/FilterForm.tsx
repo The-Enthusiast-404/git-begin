@@ -140,7 +140,7 @@ export function FilterForm({
                       name="minStars"
                       min="0"
                       value={minStars}
-                      onChange={(e) => onMinStarsChange(e.target.value)}
+                      onChange={(e) => e.target.value < 0 ? onMaxStarsChange(0): onMinStarsChange(e.target.value)}
                       className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
                     />
                   </div>
@@ -153,7 +153,8 @@ export function FilterForm({
                       id="maxStars"
                       name="maxStars"
                       value={maxStars}
-                      onChange={(e) => onMaxStarsChange(e.target.value)}
+                      min={minStars}
+                      onChange={(e) => e.target.value < 0 ? onMaxStarsChange(0): onMaxStarsChange(e.target.value)}
                       className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
                     />
                   </div>
