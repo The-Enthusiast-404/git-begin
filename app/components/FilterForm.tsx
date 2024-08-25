@@ -22,6 +22,7 @@ import {
 import { Service } from "~/types"
 import GitLabLogo from "~/components/GitLabLogo"
 import { categories } from "~/data/categories"
+import { languages } from "~/data/languages"
 
 type FilterFormProps = {
   service: Service
@@ -152,19 +153,29 @@ export function FilterForm({
                       className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
                     />
                   </div>
+                  console.log(language);
                   <div className="space-y-2">
                     <label htmlFor="language" className="text-sm font-medium">
                       Language
                     </label>
-                    <Input
-                      type="text"
-                      id="language"
-                      name="language"
-                      value={language}
-                      onChange={(e) => onLanguageChange(e.target.value)}
-                      placeholder="e.g. JavaScript"
-                      className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
-                    />
+                    <div className="bg-white dark:bg-gray-800 text-black dark:text-white py-1 light:border-transparent dark:border-transparent focus-within:border-blue-500 focus-within:outline-none rounded-md transition-colors duration-200">
+                      <Select value={language} onValueChange={onLanguageChange}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a language" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent rounded-md shadow-lg w-full">
+                          {languages.map((lang) => (
+                            <SelectItem
+                              key={lang.value}
+                              value={lang.value}
+                              className="my-1 px-2 py-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md"
+                            >
+                              {lang.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div> 
                   </div>
 
                   <div className="space-y-2">

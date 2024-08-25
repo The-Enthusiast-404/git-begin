@@ -3,7 +3,7 @@ const categories = [
   { value: "education", label: "Education" },
   { value: "web-dev", label: "Web Development" },
   { value: "mobile-dev", label: "Mobile Development" },
-  { value: "ios-dev", label: "Ios Develpment" },
+  { value: "ios-dev", label: "Ios Development" },
   { value: "blockchain-dev", label: "Blockchain Development" },
   { value: "data-science", label: "Data Science" },
   { value: "artificial-intelligence", label: "Artificial Intelligence" },
