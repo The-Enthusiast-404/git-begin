@@ -169,7 +169,7 @@ export function FilterForm({
                       name="minForks"
                       value={minForks}
                       min="0"
-                      onChange={(e) => onMinForksChange(e.target.value)}
+                      onChange={(e) => e.target.value < 0 ? onMinForksChange(0) : onMinForksChange(e.target.value)}
                       className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
                     />
                   </div>
