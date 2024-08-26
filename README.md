@@ -2,6 +2,7 @@
 
 Git Begin is a web application designed to help developers find and track their first open-source contributions. It simplifies the process of discovering "good first issues" across various projects and technologies.
 
+<a href="https://www.producthunt.com/posts/git-begin?embed=true&utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-git&#0045;begin" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=482982&theme=dark&period=daily" alt="Git&#0032;Begin - Start&#0032;contributing&#0032;to&#0032;open&#0032;source&#0032;projects&#0032;with&#0032;ease | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 <img width="1822" alt="Screenshot 2024-08-23 at 19 04 37" src="https://github.com/user-attachments/assets/25719a7e-f0d4-419a-a01e-2739971b2125">
 
 
