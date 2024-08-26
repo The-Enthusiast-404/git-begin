@@ -247,41 +247,48 @@ export default function Index() {
     submit(formData, { method: "get" })
   }
 
-  const MobileFilterPopover = () => {
+  const MobileFilterPopover = ({ 
+    initialFilters, 
+    onApplyFilters, 
+    setShowMobileFilter
+  }) => {
+    const defaultCategory = categories.find(cat => cat.value === "all") || categories[0];
+  
     const [localFilters, setLocalFilters] = useState({
-      minStars,
-      maxStars,
-      minForks,
-      language,
-      category,
-      framework,
-      isAssigned,
-      hasPullRequests,
-      showBookmarked
-    })
-
+      minStars: initialFilters?.minStars || "0",
+      maxStars: initialFilters?.maxStars || "1000000",
+      minForks: initialFilters?.minForks || "0",
+      language: initialFilters?.language || "",
+      isAssigned: initialFilters?.isAssigned || false,
+      category: initialFilters?.category || defaultCategory.value,
+      framework: initialFilters?.framework || "",
+      hasPullRequests: initialFilters?.hasPullRequests || false,
+      showBookmarked: initialFilters?.showBookmarked || false
+    });
+  
     const handleInputChange = (e) => {
-      setLocalFilters({ ...localFilters, [e.target.name]: e.target.value })
-    }
-
+      const { name, value } = e.target;
+      setLocalFilters(prev => ({ ...prev, [name]: value }));
+    };
+  
     const handleCheckboxChange = (name) => {
-      setLocalFilters({ ...localFilters, [name]: !localFilters[name] })
-    }
-
+      setLocalFilters(prev => ({ ...prev, [name]: !prev[name] }));
+    };
+  
     const handleCategoryChange = (value) => {
-      setLocalFilters({ ...localFilters, category: value })
-    }
-
+      setLocalFilters(prev => ({ ...prev, category: value }));
+    };
+  
     const handleApplyFilters = () => {
-      handleMobileFilterChange(localFilters)
-      setShowMobileFilter(false)
-    }
-
+      onApplyFilters(localFilters);
+      setShowMobileFilter(false);
+    };
+  
     return (
-      <ScrollArea className="h-[80vh] w-full p-4">
-        <div className="space-y-4">
+      <ScrollArea className="h-[80vh] w-full">
+        <div className="space-y-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
           <div>
-            <Label htmlFor="minStars">Min Stars</Label>
+            <Label htmlFor="minStars" className="text-gray-700 dark:text-gray-300">Min Stars</Label>
             <Input
               type="number"
               id="minStars"
@@ -289,11 +296,12 @@ export default function Index() {
               value={localFilters.minStars}
               onChange={handleInputChange}
               min="0"
+              className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
           </div>
-
+  
           <div>
-            <Label htmlFor="maxStars">Max Stars</Label>
+            <Label htmlFor="maxStars" className="text-gray-700 dark:text-gray-300">Max Stars</Label>
             <Input
               type="number"
               id="maxStars"
@@ -301,12 +309,12 @@ export default function Index() {
               value={localFilters.maxStars}
               onChange={handleInputChange}
               min="0"
-              max="1000000"
+              className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
           </div>
-
+  
           <div>
-            <Label htmlFor="minForks">Min Forks</Label>
+            <Label htmlFor="minForks" className="text-gray-700 dark:text-gray-300">Min Forks</Label>
             <Input
               type="number"
               id="minForks"
@@ -314,11 +322,12 @@ export default function Index() {
               value={localFilters.minForks}
               onChange={handleInputChange}
               min="0"
+              className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
           </div>
-
+  
           <div>
-            <Label htmlFor="language">Language</Label>
+            <Label htmlFor="language" className="text-gray-700 dark:text-gray-300">Language</Label>
             <Input
               type="text"
               id="language"
@@ -326,30 +335,31 @@ export default function Index() {
               value={localFilters.language}
               onChange={handleInputChange}
               placeholder="e.g. JavaScript"
+              className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
           </div>
-
+  
           <div>
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category" className="text-gray-700 dark:text-gray-300">Category</Label>
             <Select 
               value={localFilters.category} 
               onValueChange={handleCategoryChange}
             >
-              <SelectTrigger id="category">
+              <SelectTrigger id="category" className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white dark:bg-gray-800">
                 {categories.map((cat) => (
-                  <SelectItem key={cat.value} value={cat.value}>
+                  <SelectItem key={cat.value} value={cat.value} className="text-gray-900 dark:text-gray-100">
                     {cat.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-
+  
           <div>
-            <Label htmlFor="framework">Framework/Library</Label>
+            <Label htmlFor="framework" className="text-gray-700 dark:text-gray-300">Framework/Library</Label>
             <Input
               type="text"
               id="framework"
@@ -357,45 +367,49 @@ export default function Index() {
               value={localFilters.framework}
               onChange={handleInputChange}
               placeholder="e.g. React, Vue"
+              className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
           </div>
-
+  
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <Checkbox 
                 id="isAssigned"
                 checked={localFilters.isAssigned}
                 onCheckedChange={() => handleCheckboxChange('isAssigned')}
+                className="border-gray-300 dark:border-gray-600"
               />
-              <Label htmlFor="isAssigned">Include Assigned Issues</Label>
+              <Label htmlFor="isAssigned" className="text-gray-700 dark:text-gray-300">Include Assigned Issues</Label>
             </div>
-
+  
             <div className="flex items-center space-x-2">
               <Checkbox 
                 id="hasPullRequests"
                 checked={localFilters.hasPullRequests}
                 onCheckedChange={() => handleCheckboxChange('hasPullRequests')}
+                className="border-gray-300 dark:border-gray-600"
               />
-              <Label htmlFor="hasPullRequests">Include Issues with Pull Requests</Label>
+              <Label htmlFor="hasPullRequests" className="text-gray-700 dark:text-gray-300">Include Issues with Pull Requests</Label>
             </div>
-
+  
             <div className="flex items-center space-x-2">
               <Checkbox 
                 id="showBookmarked"
                 checked={localFilters.showBookmarked}
                 onCheckedChange={() => handleCheckboxChange('showBookmarked')}
+                className="border-gray-300 dark:border-gray-600"
               />
-              <Label htmlFor="showBookmarked">Show Only Bookmarked Issues</Label>
+              <Label htmlFor="showBookmarked" className="text-gray-700 dark:text-gray-300">Show Only Bookmarked Issues</Label>
             </div>
           </div>
-
-          <Button onClick={handleApplyFilters} className="w-full">
+  
+          <Button onClick={handleApplyFilters} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
             Apply Filters
           </Button>
         </div>
       </ScrollArea>
-    )
-  }
+    );
+  };
 
   const isLoading = navigation.state === "loading" || navigation.state === "submitting"
 
