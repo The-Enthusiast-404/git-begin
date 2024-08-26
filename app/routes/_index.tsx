@@ -243,47 +243,44 @@ export default function Index() {
     Object.entries(newFilters).forEach(([key, value]) => {
       formData.append(key, value.toString())
     })
+    formData.set('service', service)
     setIssues([])
     submit(formData, { method: "get" })
   }
 
-  const MobileFilterPopover = ({ 
-    initialFilters, 
-    onApplyFilters, 
-    setShowMobileFilter
-  }) => {
-    const defaultCategory = categories.find(cat => cat.value === "all") || categories[0];
-  
+  const isLoading = navigation.state === "loading" || navigation.state === "submitting"
+
+  const MobileFilterPopover = () => {
     const [localFilters, setLocalFilters] = useState({
-      minStars: initialFilters?.minStars || "0",
-      maxStars: initialFilters?.maxStars || "1000000",
-      minForks: initialFilters?.minForks || "0",
-      language: initialFilters?.language || "",
-      isAssigned: initialFilters?.isAssigned || false,
-      category: initialFilters?.category || defaultCategory.value,
-      framework: initialFilters?.framework || "",
-      hasPullRequests: initialFilters?.hasPullRequests || false,
-      showBookmarked: initialFilters?.showBookmarked || false
+      minStars,
+      maxStars,
+      minForks,
+      language,
+      isAssigned,
+      category,
+      framework,
+      hasPullRequests,
+      showBookmarked
     });
-  
-    const handleInputChange = (e) => {
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
       setLocalFilters(prev => ({ ...prev, [name]: value }));
     };
-  
-    const handleCheckboxChange = (name) => {
+
+    const handleCheckboxChange = (name: string) => {
       setLocalFilters(prev => ({ ...prev, [name]: !prev[name] }));
     };
-  
-    const handleCategoryChange = (value) => {
+
+    const handleCategoryChange = (value: string) => {
       setLocalFilters(prev => ({ ...prev, category: value }));
     };
-  
+
     const handleApplyFilters = () => {
-      onApplyFilters(localFilters);
+      handleMobileFilterChange(localFilters);
       setShowMobileFilter(false);
     };
-  
+
     return (
       <ScrollArea className="h-[80vh] w-full">
         <div className="space-y-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
@@ -299,7 +296,6 @@ export default function Index() {
               className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
           </div>
-  
           <div>
             <Label htmlFor="maxStars" className="text-gray-700 dark:text-gray-300">Max Stars</Label>
             <Input
@@ -312,7 +308,6 @@ export default function Index() {
               className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
           </div>
-  
           <div>
             <Label htmlFor="minForks" className="text-gray-700 dark:text-gray-300">Min Forks</Label>
             <Input
@@ -325,7 +320,6 @@ export default function Index() {
               className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
           </div>
-  
           <div>
             <Label htmlFor="language" className="text-gray-700 dark:text-gray-300">Language</Label>
             <Input
@@ -338,7 +332,6 @@ export default function Index() {
               className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
           </div>
-  
           <div>
             <Label htmlFor="category" className="text-gray-700 dark:text-gray-300">Category</Label>
             <Select 
@@ -357,7 +350,6 @@ export default function Index() {
               </SelectContent>
             </Select>
           </div>
-  
           <div>
             <Label htmlFor="framework" className="text-gray-700 dark:text-gray-300">Framework/Library</Label>
             <Input
@@ -370,7 +362,6 @@ export default function Index() {
               className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
           </div>
-  
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <Checkbox 
@@ -381,7 +372,6 @@ export default function Index() {
               />
               <Label htmlFor="isAssigned" className="text-gray-700 dark:text-gray-300">Include Assigned Issues</Label>
             </div>
-  
             <div className="flex items-center space-x-2">
               <Checkbox 
                 id="hasPullRequests"
@@ -391,7 +381,6 @@ export default function Index() {
               />
               <Label htmlFor="hasPullRequests" className="text-gray-700 dark:text-gray-300">Include Issues with Pull Requests</Label>
             </div>
-  
             <div className="flex items-center space-x-2">
               <Checkbox 
                 id="showBookmarked"
@@ -402,7 +391,6 @@ export default function Index() {
               <Label htmlFor="showBookmarked" className="text-gray-700 dark:text-gray-300">Show Only Bookmarked Issues</Label>
             </div>
           </div>
-  
           <Button onClick={handleApplyFilters} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
             Apply Filters
           </Button>
@@ -411,15 +399,12 @@ export default function Index() {
     );
   };
 
-  const isLoading = navigation.state === "loading" || navigation.state === "submitting"
-
   return (
     <div className="flex flex-col min-h-screen">
       <NavBar />
 
       <main className="flex-grow container mx-auto px-4">
         {isMobile ? (
-          // Mobile layout
           <div className="md:hidden">
             <Card className="mb-4">
               <CardContent className="pt-6">
@@ -474,7 +459,6 @@ export default function Index() {
             </ScrollArea>
           </div>
         ) : (
-          // Desktop layout
           <div className="flex flex-col lg:flex-row lg:space-x-4">
             <div className="w-full lg:w-1/4 mb-4 lg:mb-0">
               <div className="lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-100 dark:scrollbar-thumb-blue-500 dark:scrollbar-track-gray-800">
