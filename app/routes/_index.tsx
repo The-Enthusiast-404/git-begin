@@ -2,7 +2,7 @@ import { json, LoaderFunction } from "@remix-run/node"
 import { useLoaderData, useSubmit, useNavigation } from "@remix-run/react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { LoaderData, FilterParams, Service } from "~/types"
+import { LoaderData, FilterParams, Service, Issue } from "~/types"
 import {
   fetchGitHubIssues,
   fetchGitHubIssuesByCategory,
@@ -82,7 +82,7 @@ export default function Index() {
   const [service, setService] = useState<Service>(initialService)
   const [minStars, setMinStars] = useState("0")
   const [maxStars, setMaxStars] = useState("1000000")
-  const [language, setLanguage] = useState("")
+  const [language, setLanguage] = useState<string[]>([])
   const [isAssigned, setIsAssigned] = useState(false)
   const [category, setCategory] = useState("all")
   const [framework, setFramework] = useState("")
@@ -98,7 +98,7 @@ export default function Index() {
     setService((url.searchParams.get("service") || "github") as Service)
     setMinStars(url.searchParams.get("minStars") || "0")
     setMaxStars(url.searchParams.get("maxStars") || "1000000")
-    setLanguage(url.searchParams.get("language") || "")
+    setLanguage(url.searchParams.getAll("language") || "")
     setIsAssigned(url.searchParams.get("isAssigned") === "true")
     setCategory(url.searchParams.get("category") || "all")
     setFramework(url.searchParams.get("framework") || "")
@@ -141,7 +141,7 @@ export default function Index() {
     formData.set("service", service)
     formData.set("minStars", minStars)
     formData.set("maxStars", maxStars)
-    formData.set("language", language)
+    formData.set("language", language.join())
     formData.set("isAssigned", isAssigned.toString())
     formData.set("category", category)
     formData.set("framework", framework)
@@ -157,7 +157,7 @@ export default function Index() {
     formData.set("service", newService)
     formData.set("minStars", minStars)
     formData.set("maxStars", maxStars)
-    formData.set("language", language)
+    formData.set("language", language.join())
     formData.set("isAssigned", isAssigned.toString())
     formData.set("category", category)
     formData.set("framework", framework)
@@ -178,6 +178,21 @@ export default function Index() {
       )
     }
   }
+
+  useEffect(() => {
+    const handleLanguageChange = (value : string) => {
+      if (language.includes(value)) {
+        // if the value is already in the state, then unselect it
+        setLanguage(language.filter((language) => language !== value));
+      }
+      else {
+        // else add it to the state
+        setLanguage([...language, value]);
+      }
+    }
+    language.forEach(lang=>handleLanguageChange(lang))
+    
+  }, [])
 
   const isLoading =
     navigation.state === "loading" || navigation.state === "submitting"

@@ -27,7 +27,7 @@ type FilterFormProps = {
   service: Service
   minStars: string
   maxStars: string
-  language: string
+  language: string[]
   isAssigned: boolean
   category: string
   framework: string
@@ -37,7 +37,7 @@ type FilterFormProps = {
   onServiceChange: (value: Service) => void
   onMinStarsChange: (value: string) => void
   onMaxStarsChange: (value: string) => void
-  onLanguageChange: (value: string) => void
+  onLanguageChange: (value: string[]) => void
   onIsAssignedChange: (value: boolean) => void
   onCategoryChange: (value: string) => void
   onFrameworkChange: (value: string) => void
@@ -161,7 +161,11 @@ export function FilterForm({
                       id="language"
                       name="language"
                       value={language}
-                      onChange={(e) => onLanguageChange(e.target.value)}
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+                        const valuesArray = inputValue.split(',').map((value) => value.trim());
+                        onLanguageChange(valuesArray);
+                      }}
                       placeholder="e.g. JavaScript"
                       className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
                     />
