@@ -100,5 +100,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Contact
 
 Email - issahil404@gmail.com
-
-Project Link: [https://github.com/your-username/git-begin](https://github.com/The-Enthusiast-404/git-begin)
