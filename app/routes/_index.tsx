@@ -403,7 +403,7 @@ export default function Index() {
     <div className="flex flex-col min-h-screen">
       <NavBar />
 
-      <main className="flex-grow container mx-auto px-4">
+      <main className="flex-grow container mx-auto px-4 pb-16"> {/* Added pb-16 for padding at the bottom */}
         {isMobile ? (
           <div className="md:hidden">
             <Card className="mb-4">
@@ -432,7 +432,7 @@ export default function Index() {
                 </form>
               </CardContent>
             </Card>
-            <ScrollArea className="h-[calc(100vh-16rem)] w-full">
+            <div className="h-[calc(100vh-16rem)] overflow-y-auto"> {/* Changed to a div with fixed height and overflow */}
               {error && (
                 <div className="mb-4 p-4 bg-red-50 text-red-500 rounded-md">
                   Error: {error}
@@ -456,7 +456,7 @@ export default function Index() {
                   />
                 ))}
               </div>
-            </ScrollArea>
+            </div>
           </div>
         ) : (
           <div className="flex flex-col lg:flex-row lg:space-x-4">
@@ -532,7 +532,7 @@ export default function Index() {
         )}
       </main>
 
-      <Footer />
+      <Footer className="mt-auto" />
     </div>
   )
 }
