@@ -33,6 +33,9 @@ export async function fetchGitHubIssues(params: FilterParams) {
               nameWithOwner
               url
               stargazerCount
+              licenseInfo{
+                name   
+              }
               forkCount
               primaryLanguage {
                 name
@@ -58,7 +61,7 @@ export async function fetchGitHubIssues(params: FilterParams) {
     }
   `
 
-  let queryString = 'is:open is:issue label:"good first issue" archived:false'
+  let queryString = 'is:open is:issue label:"good first issue" archived:false is:public archived:false'
   if (params.language) queryString += ` language:${params.language}`
   if (params.isAssigned) {
     queryString += " assigned:*"
@@ -81,9 +84,10 @@ export async function fetchGitHubIssues(params: FilterParams) {
 
   const issues: Issue[] = response.search.nodes
     .filter((issue: any) => {
+      const isLicensed = Boolean(issue.repository.licenseInfo)
       const stars = issue.repository.stargazerCount
       const forks = issue.repository.forkCount
-      return stars >= params.minStars && stars <= params.maxStars && forks >= params.minForks
+      return stars >= params.minStars && stars <= params.maxStars && forks >= params.minForks && isLicensed
     })
     .map((issue: any) => ({
       id: issue.url,
