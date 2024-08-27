@@ -61,7 +61,7 @@ export async function fetchGitHubIssues(params: FilterParams) {
     }
   `
 
-  let queryString = 'is:open is:issue label:"good first issue" archived:false is:public archived:false'
+  let queryString = 'is:open is:issue label:"good first issue" archived:false'
   if (params.language) queryString += ` language:${params.language}`
   if (params.isAssigned) {
     queryString += " assigned:*"
