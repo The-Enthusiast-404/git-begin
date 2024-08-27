@@ -51,6 +51,15 @@ export async function fetchGitHubIssues(params: FilterParams) {
             }
             timelineItems(first: 1, itemTypes: [CROSS_REFERENCED_EVENT]) {
               totalCount
+              nodes {
+                ... on CrossReferencedEvent {
+                  source {
+                    ... on PullRequest {
+                      state
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -77,39 +86,45 @@ export async function fetchGitHubIssues(params: FilterParams) {
     cursor: params.cursor,
   }
 
-  const response: any = await graphqlWithAuth(query, variables)
+  try {
+    const response: any = await graphqlWithAuth(query, variables)
 
-  const issues: Issue[] = response.search.nodes
-    .filter((issue: any) => {
-      const stars = issue.repository.stargazerCount
-      const forks = issue.repository.forkCount
-      return stars >= params.minStars && stars <= params.maxStars && forks >= params.minForks
-    })
-    .map((issue: any) => ({
-      id: issue.url,
-      title: issue.title,
-      html_url: issue.url,
-      created_at: issue.createdAt,
-      repository_url: issue.repository.url,
-      repository_name: issue.repository.nameWithOwner,
-      stars_count: issue.repository.stargazerCount,
-      fork_count: issue.repository.forkCount,
-      language: issue.repository.primaryLanguage?.name || null,
-      is_assigned: issue.assignees.totalCount > 0,
-      labels: issue.labels.nodes.map((label: any) => label.name),
-      comments_count: issue.comments.totalCount,
-      has_pull_requests: issue.timelineItems.totalCount > 0,
-    }))
+    const issues: Issue[] = response.search.nodes
+      .filter((issue: any) => {
+        const stars = issue.repository.stargazerCount
+        const forks = issue.repository.forkCount
+        return stars >= params.minStars && stars <= params.maxStars && forks >= params.minForks
+      })
+      .map((issue: any) => ({
+        id: issue.url,
+        title: issue.title,
+        html_url: issue.url,
+        created_at: issue.createdAt,
+        repository_url: issue.repository.url,
+        repository_name: issue.repository.nameWithOwner,
+        stars_count: issue.repository.stargazerCount,
+        fork_count: issue.repository.forkCount,
+        language: issue.repository.primaryLanguage?.name || null,
+        is_assigned: issue.assignees.totalCount > 0,
+        labels: issue.labels.nodes.map((label: any) => label.name),
+        comments_count: issue.comments.totalCount,
+        has_pull_requests: issue.timelineItems.totalCount > 0,
+        pr_status: issue.timelineItems.totalCount > 0 ? issue.timelineItems.nodes[0]?.source?.state || null : null,
+      }))
 
-  const sortedIssues = issues.sort(
-    (a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  )
+    const sortedIssues = issues.sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
 
-  return {
-    issues: sortedIssues,
-    hasNextPage: response.search.pageInfo.hasNextPage,
-    endCursor: response.search.pageInfo.endCursor,
+    return {
+      issues: sortedIssues,
+      hasNextPage: response.search.pageInfo.hasNextPage,
+      endCursor: response.search.pageInfo.endCursor,
+    }
+  } catch (error) {
+    console.error("Error fetching GitHub issues:", error)
+    throw error
   }
 }
 
