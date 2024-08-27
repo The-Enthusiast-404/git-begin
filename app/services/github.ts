@@ -141,36 +141,48 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
   })
 
   const query = `
-    query($queryString: String!, $cursor: String) {
-      search(query: $queryString, type: REPOSITORY, first: ${REPOS_PER_PAGE}, after: $cursor) {
-        pageInfo {
-          hasNextPage
-          endCursor
+    query($owner: String!, $name: String!, $cursor: String, $hasPR: Boolean!) {
+  repository(owner: $owner, name: $name) {
+    issues(first: 100, after: $cursor, orderBy: {field: CREATED_AT, direction: DESC}) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      nodes {
+        number
+        title
+        body
+        createdAt
+        closedAt
+        state
+        author {
+          login
         }
-        nodes {
-          ... on Repository {
-            nameWithOwner
-            url
-            stargazerCount
-            forkCount
-            primaryLanguage {
-              name
-            }
-            issues(labels: ["good first issue"], states: OPEN, first: ${ISSUES_PER_REPO}, orderBy: {field: CREATED_AT, direction: DESC}) {
-              nodes {
-                title
-                url
-                createdAt
-                assignees(first: 1) {
-                  totalCount
-                }
-                labels(first: 10) {
-                  nodes {
-                    name
-                  }
-                }
-                comments {
-                  totalCount
+        labels(first: 10) {
+          nodes {
+            name
+          }
+        }
+        milestone {
+          title
+        }
+        assignees(first: 5) {
+          nodes {
+            login
+          }
+        }
+        comments {
+          totalCount
+        }
+        timelineItems(first: 1, itemTypes: [CROSS_REFERENCED_EVENT]) {
+          nodes {
+            ... on CrossReferencedEvent {
+              source {
+                ... on PullRequest {
+                  number
+                  title
+                  state
+                  isDraft
                 }
               }
             }
@@ -178,6 +190,8 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
         }
       }
     }
+  }
+}
   `
 
   let queryString = "is:public archived:false"
