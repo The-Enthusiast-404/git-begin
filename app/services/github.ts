@@ -112,7 +112,20 @@ export async function fetchGitHubIssues(params: FilterParams) {
         pr_status: issue.timelineItems.totalCount > 0 ? issue.timelineItems.nodes[0]?.source?.state || null : null,
       }))
 
-    const sortedIssues = issues.sort(
+    // Insert the new filtering logic here
+    const filteredIssues = issues.filter(issue => {
+      if (!params.hasPullRequests) {
+        return !issue.has_pull_requests;
+      } else {
+        return issue.has_pull_requests && 
+               (issue.pr_status === 'OPEN' || 
+                issue.pr_status === 'DRAFT' || 
+                issue.pr_status === 'CLOSED' || 
+                issue.pr_status === null);
+      }
+    });
+
+    const sortedIssues = filteredIssues.sort(
       (a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     )
