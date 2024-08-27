@@ -114,25 +114,9 @@ export default function Index() {
   const navigation = useNavigation()
   const { bookmarks, toggleBookmark, isBookmarked } = useBookmarks()
 
-  const [viewportSize, setViewportSize] = useState<'mobile' | 'tablet' | 'desktop'>('desktop')
   const [mobileSearchQuery, setMobileSearchQuery] = useState("")
   const [showFilter, setShowFilter] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
-
-  useEffect(() => {
-    const checkViewportSize = () => {
-      if (window.innerWidth < 640) {
-        setViewportSize('mobile')
-      } else if (window.innerWidth < 1024) {
-        setViewportSize('tablet')
-      } else {
-        setViewportSize('desktop')
-      }
-    }
-    checkViewportSize()
-    window.addEventListener("resize", checkViewportSize)
-    return () => window.removeEventListener("resize", checkViewportSize)
-  }, [])
 
   useEffect(() => {
     const url = new URL(window.location.href)
@@ -289,10 +273,10 @@ export default function Index() {
             <div className="flex justify-center mt-6 mb-6">
               <Button
                 onClick={handleLoadMore}
-                disabled={isLoading}
+                disabled={isSearching}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                {isLoading ? "Loading..." : "Load More"}
+                {isSearching ? "Loading..." : "Load More"}
               </Button>
             </div>
           )}
@@ -308,150 +292,117 @@ export default function Index() {
       <NavBar />
 
       <main className="flex-grow container mx-auto px-4 pb-16">
-        {viewportSize === 'mobile' && (
-          <div className="sm:hidden">
-            <Card className="mb-4">
-              <CardContent className="pt-6">
-                <form onSubmit={handleMobileSearch} className="flex items-center space-x-2">
-                  <Input 
-                    type="text" 
-                    placeholder="Search issues..." 
-                    value={mobileSearchQuery}
-                    onChange={(e) => setMobileSearchQuery(e.target.value)}
-                    className="flex-grow bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  />
-                  <Button type="submit" size="icon" variant="outline">
-                    <Search className="h-4 w-4" />
-                  </Button>
-                  <Popover open={showFilter} onOpenChange={setShowFilter}>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" size="icon">
-                        <Filter className="h-4 w-4" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80">
-                      <FilterPopover />
-                    </PopoverContent>
-                  </Popover>
-                </form>
-              </CardContent>
-            </Card>
-            <ScrollArea className="h-[calc(100vh-16rem)] overflow-y-auto">
-              {error && !isSearching && (
-                <div className="mb-4 p-4 bg-red-50 text-red-500 rounded-md">
-                  Error: {error}
-                </div>
-              )}
-              {issues.length === 0 && !error && !isLoading && !isSearching && (
-                <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md">
-                  {showBookmarked
-                    ? "No bookmarked issues found. Try bookmarking some issues first."
-                    : "No issues found matching the current criteria. Try adjusting your filters."}
-                </div>
-              )}
-              {renderIssueList()}
-            </ScrollArea>
-          </div>
-        )}
+        {/* Mobile and Tablet View */}
+        <div className="lg:hidden">
+          <Card className="mb-4">
+            <CardContent className="pt-6">
+              <form onSubmit={handleMobileSearch} className="flex items-center space-x-2">
+                <Input 
+                  type="text" 
+                  placeholder="Search issues..." 
+                  value={mobileSearchQuery}
+                  onChange={(e) => setMobileSearchQuery(e.target.value)}
+                  className="flex-grow bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                />
+                <Button type="submit" size="icon" variant="outline">
+                  <Search className="h-4 w-4" />
+                </Button>
+                <Popover open={showFilter} onOpenChange={setShowFilter}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <Filter className="h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80">
+                    <FilterPopover 
+                      filters={{
+                        minStars,
+                        maxStars,
+                        minForks,
+                        language,
+                        isAssigned,
+                        category,
+                        framework,
+                        hasPullRequests,
+                        showBookmarked
+                      }}
+                      onFilterChange={handleFilterChange}
+                      setShowFilter={setShowFilter}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </form>
+            </CardContent>
+          </Card>
+          <ScrollArea className="h-[calc(100vh-16rem)] overflow-y-auto">
+            {error && !isSearching && (
+              <div className="mb-4 p-4 bg-red-50 text-red-500 rounded-md">
+                Error: {error}
+              </div>
+            )}
+            {issues.length === 0 && !error && !isLoading && !isSearching && (
+              <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md">
+                {showBookmarked
+                  ? "No bookmarked issues found. Try bookmarking some issues first."
+                  : "No issues found matching the current criteria. Try adjusting your filters."}
+              </div>
+            )}
+            {renderIssueList()}
+          </ScrollArea>
+        </div>
 
-        {viewportSize === 'tablet' && (
-          <div className="hidden sm:block lg:hidden">
-            <Card className="mb-4">
-              <CardContent className="pt-6">
-                <form onSubmit={handleMobileSearch} className="flex items-center space-x-2">
-                  <Input 
-                    type="text" 
-                    placeholder="Search issues..." 
-                    value={mobileSearchQuery}
-                    onChange={(e) => setMobileSearchQuery(e.target.value)}
-                    className="flex-grow bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  />
-                  <Button type="submit" size="icon" variant="outline">
-                    <Search className="h-4 w-4" />
-                  </Button>
-                  <Popover open={showFilter} onOpenChange={setShowFilter}>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" size="icon">
-                        <Filter className="h-4 w-4" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80">
-                      <FilterPopover />
-                    </PopoverContent>
-                  </Popover>
-                </form>
-              </CardContent>
-            </Card>
-            <ScrollArea className="h-[calc(100vh-16rem)] overflow-y-auto">
-              {error && !isSearching && (
-                <div className="mb-4 p-4 bg-red-50 text-red-500 rounded-md">
-                  Error: {error}
-                </div>
-              )}
-              {issues.length === 0 && !error && !isLoading && !isSearching && (
-                <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md">
-                  {showBookmarked
-                    ? "No bookmarked issues found. Try bookmarking some issues first."
-                    : "No issues found matching the current criteria. Try adjusting your filters."}
-                </div>
-              )}
-              {renderIssueList()}
-            </ScrollArea>
-          </div>
-        )}
-
-        {viewportSize === 'desktop' && (
-          <div className="hidden lg:flex lg:flex-row lg:space-x-4">
-            <div className="w-1/4">
-              <div className="sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-100 dark:scrollbar-thumb-blue-500 dark:scrollbar-track-gray-800">
+        {/* Desktop View */}
+        <div className="hidden lg:flex lg:space-x-4">
+          <div className="w-1/3">
+            <Card>
+              <CardContent>
                 <FilterForm
                   service={service}
-                  minStars={minStars}
-                  maxStars={maxStars}
-                  minForks={minForks}
-                  language={language}
-                  isAssigned={isAssigned}
-                  category={category}
-                  framework={framework}
-                  hasPullRequests={hasPullRequests}
-                  showBookmarked={showBookmarked}
-                  isLoading={isLoading}
                   onServiceChange={handleServiceChange}
+                  minStars={minStars}
                   onMinStarsChange={setMinStars}
+                  maxStars={maxStars}
                   onMaxStarsChange={setMaxStars}
+                  minForks={minForks}
                   onMinForksChange={setMinForks}
+                  language={language}
                   onLanguageChange={setLanguage}
+                  isAssigned={isAssigned}
                   onIsAssignedChange={setIsAssigned}
+                  category={category}
                   onCategoryChange={setCategory}
+                  framework={framework}
                   onFrameworkChange={setFramework}
+                  hasPullRequests={hasPullRequests}
                   onHasPullRequestsChange={setHasPullRequests}
+                  showBookmarked={showBookmarked}
                   onShowBookmarkedChange={setShowBookmarked}
                   onSubmit={handleSubmit}
                 />
-              </div>
-            </div>
-
-            <div className="flex-1 lg:overflow-hidden">
-              <ScrollArea className="h-[calc(100vh-8rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-100 dark:scrollbar-thumb-blue-700 dark:scrollbar-track-gray-800">
-                {error && !isSearching && (
-                  <div className="mb-4 p-4 bg-red-50 text-red-500 rounded-md">
-                    Error: {error}
-                  </div>
-                )}
-                {issues.length === 0 && !error && !isLoading && !isSearching && (
-                  <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md">
-                    {showBookmarked
-                      ? "No bookmarked issues found. Try bookmarking some issues first."
-                      : "No issues found matching the current criteria. Try adjusting your filters."}
-                  </div>
-                )}
-                <div className="space-y-4 p-4">
-                  {renderIssueList()}
-                </div>
-              </ScrollArea>
-            </div>
+              </CardContent>
+            </Card>
           </div>
-        )}
+
+          <div className="flex-1 lg:overflow-hidden">
+            <ScrollArea className="h-[calc(100vh-8rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-100 dark:scrollbar-thumb-blue-700 dark:scrollbar-track-gray-800">
+              {error && !isSearching && (
+                <div className="mb-4 p-4 bg-red-50 text-red-500 rounded-md">
+                  Error: {error}
+                </div>
+              )}
+              {issues.length === 0 && !error && !isLoading && !isSearching && (
+                <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-md">
+                  {showBookmarked
+                    ? "No bookmarked issues found. Try bookmarking some issues first."
+                    : "No issues found matching the current criteria. Try adjusting your filters."}
+                </div>
+              )}
+              <div className="space-y-4 p-4">
+                {renderIssueList()}
+              </div>
+            </ScrollArea>
+          </div>
+        </div>
       </main>
 
       <Footer className="mt-auto" />
@@ -459,18 +410,8 @@ export default function Index() {
   )
 }
 
-const FilterPopover = () => {
-  const [localFilters, setLocalFilters] = useState({
-    minStars,
-    maxStars,
-    minForks,
-    language,
-    isAssigned,
-    category,
-    framework,
-    hasPullRequests,
-    showBookmarked
-  });
+const FilterPopover = ({ filters, onFilterChange, setShowFilter }) => {
+  const [localFilters, setLocalFilters] = useState(filters);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -486,7 +427,7 @@ const FilterPopover = () => {
   };
 
   const handleApplyFilters = () => {
-    handleFilterChange(localFilters);
+    onFilterChange(localFilters);
     setShowFilter(false);
   };
 
@@ -506,7 +447,7 @@ const FilterPopover = () => {
           />
         </div>
         <div>
-          <Label htmlFor="maxStars" className="text-gray-700 dark:text-gray-300">Max Stars</Label>
+        <Label htmlFor="maxStars" className="text-gray-700 dark:text-gray-300">Max Stars</Label>
           <Input
             type="number"
             id="maxStars"
@@ -552,59 +493,58 @@ const FilterPopover = () => {
             </SelectTrigger>
             <SelectContent className="bg-white dark:bg-gray-800">
               {categories.map((cat) => (
-                <SelectItem key={cat.value}
-                value={cat.value} className="text-gray-900 dark:text-gray-100">
-                {cat.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div>
-        <Label htmlFor="framework" className="text-gray-700 dark:text-gray-300">Framework/Library</Label>
-        <Input
-          type="text"
-          id="framework"
-          name="framework"
-          value={localFilters.framework}
-          onChange={handleInputChange}
-          placeholder="e.g. React, Vue"
-          className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-        />
-      </div>
-      <div className="space-y-2">
-        <div className="flex items-center space-x-2">
-          <Checkbox 
-            id="isAssigned"
-            checked={localFilters.isAssigned}
-            onCheckedChange={() => handleCheckboxChange('isAssigned')}
-            className="border-gray-300 dark:border-gray-600"
-          />
-          <Label htmlFor="isAssigned" className="text-gray-700 dark:text-gray-300">Include Assigned Issues</Label>
+                <SelectItem key={cat.value} value={cat.value} className="text-gray-900 dark:text-gray-100">
+                  {cat.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-        <div className="flex items-center space-x-2">
-          <Checkbox 
-            id="hasPullRequests"
-            checked={localFilters.hasPullRequests}
-            onCheckedChange={() => handleCheckboxChange('hasPullRequests')}
-            className="border-gray-300 dark:border-gray-600"
+        <div>
+          <Label htmlFor="framework" className="text-gray-700 dark:text-gray-300">Framework/Library</Label>
+          <Input
+            type="text"
+            id="framework"
+            name="framework"
+            value={localFilters.framework}
+            onChange={handleInputChange}
+            placeholder="e.g. React, Vue"
+            className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
           />
-          <Label htmlFor="hasPullRequests" className="text-gray-700 dark:text-gray-300">Include Issues with Pull Requests</Label>
         </div>
-        <div className="flex items-center space-x-2">
-          <Checkbox 
-            id="showBookmarked"
-            checked={localFilters.showBookmarked}
-            onCheckedChange={() => handleCheckboxChange('showBookmarked')}
-            className="border-gray-300 dark:border-gray-600"
-          />
-          <Label htmlFor="showBookmarked" className="text-gray-700 dark:text-gray-300">Show Only Bookmarked Issues</Label>
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="isAssigned"
+              checked={localFilters.isAssigned}
+              onCheckedChange={() => handleCheckboxChange('isAssigned')}
+              className="border-gray-300 dark:border-gray-600"
+            />
+            <Label htmlFor="isAssigned" className="text-gray-700 dark:text-gray-300">Include Assigned Issues</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="hasPullRequests"
+              checked={localFilters.hasPullRequests}
+              onCheckedChange={() => handleCheckboxChange('hasPullRequests')}
+              className="border-gray-300 dark:border-gray-600"
+            />
+            <Label htmlFor="hasPullRequests" className="text-gray-700 dark:text-gray-300">Include Issues with Pull Requests</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="showBookmarked"
+              checked={localFilters.showBookmarked}
+              onCheckedChange={() => handleCheckboxChange('showBookmarked')}
+              className="border-gray-300 dark:border-gray-600"
+            />
+            <Label htmlFor="showBookmarked" className="text-gray-700 dark:text-gray-300">Show Only Bookmarked Issues</Label>
+          </div>
         </div>
+        <Button onClick={handleApplyFilters} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+          Apply Filters
+        </Button>
       </div>
-      <Button onClick={handleApplyFilters} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-        Apply Filters
-      </Button>
-    </div>
-  </ScrollArea>
+    </ScrollArea>
   );
 };
