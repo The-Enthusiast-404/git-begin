@@ -38,6 +38,7 @@
     "cmdk": "^1.0.0",
     "isbot": "^4.1.0",
     "lucide-react": "^0.427.0",
+    "multiselect-react-dropdown": "^2.0.25",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.52.2",
