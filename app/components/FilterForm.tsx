@@ -1,4 +1,5 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
+import { useTheme } from "remix-themes"
 import { Form } from "@remix-run/react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -23,7 +24,6 @@ import {
 import { Service } from "~/types"
 import GitLabLogo from "~/components/GitLabLogo"
 import { categories } from "~/data/categories"
-import { Label } from "@radix-ui/react-dropdown-menu"
 import { Multiselect } from "multiselect-react-dropdown"
 type FilterFormProps = {
   service: Service
@@ -74,7 +74,27 @@ export function FilterForm({
   onShowBookmarkedChange,
   onSubmit,
 }: FilterFormProps) {
-  const languageOptions = ["JavaScript", "TypeScript", "Python", "C++", "C#"]
+  const languageOptions = [
+    "JavaScript",
+    "TypeScript",
+    "Python",
+    "C++",
+    "C#",
+    "Java",
+    "Ruby",
+    "PHP",
+    "Swift",
+    "Go",
+    "Kotlin",
+    "Rust",
+    "R",
+  ]
+  const [theme] = useTheme()
+  const [domLoaded, setDomLoaded] = useState(false)
+
+  useEffect(() => {
+    setDomLoaded(true)
+  }, [])
 
   return (
     <div className="mb-8">
@@ -193,23 +213,48 @@ export function FilterForm({
                     <label htmlFor="language" className="text-sm font-medium">
                       Language
                     </label>
-                    <Multiselect
-                      isObject={false}
-                      options={languageOptions}
-                      selectedValues={language}
-                      onRemove={onLanguageChange}
-                      onSelect={onLanguageChange}
-                      placeholder="Select Languages"
-                      className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
-                      style={{
-                        chips: {
-                          fontWeight: "bold",
-                        },
-                        multiselectContainer: {
-                          color: "white",
-                        },
-                      }}
-                    />
+                    {domLoaded && (
+                      <Multiselect
+                        isObject={false}
+                        options={languageOptions}
+                        selectedValues={language}
+                        onRemove={onLanguageChange}
+                        onSelect={onLanguageChange}
+                        placeholder="Select Languages"
+                        className="bg-white dark:bg-gray-800 text-black dark:text-white border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
+                        style={{
+                          chips: {
+                            fontWeight: "bold",
+                          },
+                          searchBox: {
+                            // To change search box element look
+                            border: "none",
+                          },
+                          inputField: {
+                            // To change input field position or margin
+                            padding: "3px",
+                          },
+                          optionContainer: {
+                            // To Set the dropdown background
+                            backgroundColor:
+                              theme === "dark" ? "#1F2937" : "white",
+                            border: theme === "dark" ? "none" : "",
+                            borderColor: "#D1D5DB",
+                            borderWidth: "2px",
+                            fontSize: "0.875rem",
+                            overflow: "auto",
+                            scrollbarColor:
+                              theme === "dark"
+                                ? "rgba(255, 255, 255, 0.5) transparent"
+                                : "rgba(0, 0, 0, 0.5) transparent",
+                          },
+                          option: {
+                            // To change css for dropdown options
+                            color: theme === "dark" ? "white" : "black",
+                          },
+                        }}
+                      />
+                    )}
                   </div>
 
                   <div className="space-y-2">
