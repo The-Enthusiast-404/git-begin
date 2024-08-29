@@ -34,7 +34,7 @@ export async function fetchGitHubIssues(params: FilterParams) {
               url
               stargazerCount
               licenseInfo{
-                name   
+                name  
               }
               forkCount
               primaryLanguage {
@@ -54,6 +54,15 @@ export async function fetchGitHubIssues(params: FilterParams) {
             }
             timelineItems(first: 1, itemTypes: [CROSS_REFERENCED_EVENT]) {
               totalCount
+              nodes {
+                ... on CrossReferencedEvent {
+                  source {
+                    ... on PullRequest {
+                      state
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -80,40 +89,60 @@ export async function fetchGitHubIssues(params: FilterParams) {
     cursor: params.cursor,
   }
 
-  const response: any = await graphqlWithAuth(query, variables)
+  try {
+    const response: any = await graphqlWithAuth(query, variables)
 
-  const issues: Issue[] = response.search.nodes
-    .filter((issue: any) => {
-      const isLicensed = Boolean(issue.repository.licenseInfo)
-      const stars = issue.repository.stargazerCount
-      const forks = issue.repository.forkCount
-      return stars >= params.minStars && stars <= params.maxStars && forks >= params.minForks && isLicensed
-    })
-    .map((issue: any) => ({
-      id: issue.url,
-      title: issue.title,
-      html_url: issue.url,
-      created_at: issue.createdAt,
-      repository_url: issue.repository.url,
-      repository_name: issue.repository.nameWithOwner,
-      stars_count: issue.repository.stargazerCount,
-      fork_count: issue.repository.forkCount,
-      language: issue.repository.primaryLanguage?.name || null,
-      is_assigned: issue.assignees.totalCount > 0,
-      labels: issue.labels.nodes.map((label: any) => label.name),
-      comments_count: issue.comments.totalCount,
-      has_pull_requests: issue.timelineItems.totalCount > 0,
-    }))
+    const issues: Issue[] = response.search.nodes
+      .filter((issue: any) => {
+        const hasLicense = Boolean(issue.repository.licenseInfo)
+        const stars = issue.repository.stargazerCount
+        const forks = issue.repository.forkCount
+        return stars >= params.minStars && stars <= params.maxStars && forks >= params.minForks && hasLicense
+      })
+      .map((issue: any) => ({
+        id: issue.url,
+        title: issue.title,
+        html_url: issue.url,
+        created_at: issue.createdAt,
+        repository_url: issue.repository.url,
+        repository_name: issue.repository.nameWithOwner,
+        license:issue.repository.licenseInfo,
+        stars_count: issue.repository.stargazerCount,
+        fork_count: issue.repository.forkCount,
+        language: issue.repository.primaryLanguage?.name || null,
+        is_assigned: issue.assignees.totalCount > 0,
+        labels: issue.labels.nodes.map((label: any) => label.name),
+        comments_count: issue.comments.totalCount,
+        has_pull_requests: issue.timelineItems.totalCount > 0,
+        pr_status: issue.timelineItems.totalCount > 0 ? issue.timelineItems.nodes[0]?.source?.state || null : null,
+      }))
 
-  const sortedIssues = issues.sort(
-    (a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  )
+    // Insert the new filtering logic here
+    const filteredIssues = issues.filter(issue => {
+      if (!params.hasPullRequests) {
+        return !issue.has_pull_requests;
+      } else {
+        return issue.has_pull_requests && 
+               (issue.pr_status === 'OPEN' || 
+                issue.pr_status === 'DRAFT' || 
+                issue.pr_status === 'CLOSED' || 
+                issue.pr_status === null);
+      }
+    });
 
-  return {
-    issues: sortedIssues,
-    hasNextPage: response.search.pageInfo.hasNextPage,
-    endCursor: response.search.pageInfo.endCursor,
+    const sortedIssues = filteredIssues.sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+
+    return {
+      issues: sortedIssues,
+      hasNextPage: response.search.pageInfo.hasNextPage,
+      endCursor: response.search.pageInfo.endCursor,
+    }
+  } catch (error) {
+    console.error("Error fetching GitHub issues:", error)
+    throw error
   }
 }
 
@@ -129,8 +158,7 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
     },
   })
 
-  const query = `
-    query($queryString: String!, $cursor: String) {
+  const query = `query($queryString: String!, $cursor: String) {
       search(query: $queryString, type: REPOSITORY, first: ${REPOS_PER_PAGE}, after: $cursor) {
         pageInfo {
           hasNextPage
@@ -142,6 +170,9 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
             url
             stargazerCount
             forkCount
+            licenseInfo{
+                name   
+              }
             primaryLanguage {
               name
             }
@@ -166,7 +197,7 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
           }
         }
       }
-    }
+    } 
   `
 
   let queryString = "is:public archived:false"
@@ -200,8 +231,6 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
     }
   }
 
-  console.log("GitHub category query string:", queryString)
-
   const variables = {
     queryString,
     cursor: params.cursor,
@@ -209,11 +238,6 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
 
   try {
     const response: any = await graphqlWithAuth(query, variables)
-
-    console.log(
-      "GitHub API category response:",
-      JSON.stringify(response, null, 2)
-    )
 
     const issues: Issue[] = response.search.nodes
       .flatMap((repo: any) =>
@@ -224,6 +248,7 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
           created_at: issue.createdAt,
           repository_url: repo.url,
           repository_name: repo.nameWithOwner,
+          license: repo.licenseInfo,
           stars_count: repo.stargazerCount,
           forkCount: repo.forkCount,
           language: repo.primaryLanguage?.name || null,
@@ -232,7 +257,10 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
           comments_count: issue.comments.totalCount,
         }))
       )
-      .filter((issue: Issue) => !params.isAssigned || issue.is_assigned)
+      .filter((issue: Issue) => {
+        const hasLicense = Boolean(issue.license)
+        return (!params.isAssigned || issue.is_assigned) &&  hasLicense
+      })
 
     // If we have no issues but there are more pages, fetch the next page immediately
     if (issues.length === 0 && response.search.pageInfo.hasNextPage) {
@@ -278,6 +306,9 @@ export async function fetchGitHubIssuesByFramework(params: FilterParams) {
             url
             stargazerCount
             forkCount
+             licenseInfo{
+                name   
+              }
             primaryLanguage {
               name
             }
@@ -310,8 +341,6 @@ export async function fetchGitHubIssuesByFramework(params: FilterParams) {
   queryString += ` stars:${params.minStars}..${params.maxStars}`
   queryString += ` forks:>=${params.minForks}`
 
-  console.log("GitHub framework query string:", queryString)
-
   const variables = {
     queryString,
     cursor: params.cursor,
@@ -319,11 +348,6 @@ export async function fetchGitHubIssuesByFramework(params: FilterParams) {
 
   try {
     const response: any = await graphqlWithAuth(query, variables)
-
-    console.log(
-      "GitHub API framework response:",
-      JSON.stringify(response, null, 2)
-    )
 
     const issues: Issue[] = response.search.nodes
       .flatMap((repo: any) =>
@@ -334,6 +358,7 @@ export async function fetchGitHubIssuesByFramework(params: FilterParams) {
           created_at: issue.createdAt,
           repository_url: repo.url,
           repository_name: repo.nameWithOwner,
+          license: repo.licenseInfo,
           stars_count: repo.stargazerCount,
           forkCount: repo.forkCount,
           language: repo.primaryLanguage?.name || null,
@@ -342,7 +367,10 @@ export async function fetchGitHubIssuesByFramework(params: FilterParams) {
           comments_count: issue.comments.totalCount,
         }))
       )
-      .filter((issue: Issue) => !params.isAssigned || issue.is_assigned)
+      .filter((issue: Issue) => {
+        const hasLicense = Boolean(issue.license)
+        return (!params.isAssigned || issue.is_assigned) && hasLicense
+      })
 
     // If we have no issues but there are more pages, fetch the next page immediately
     if (issues.length === 0 && response.search.pageInfo.hasNextPage) {

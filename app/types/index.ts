@@ -1,5 +1,8 @@
 // types.ts
 export type Issue = {
+  has_pull_requests: any
+  pr_status: string
+  license:any
   id: string
   title: string
   html_url: string
