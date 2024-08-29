@@ -193,40 +193,23 @@ export function FilterForm({
                     <label htmlFor="language" className="text-sm font-medium">
                       Language
                     </label>
-                    {/* <Input
-                      type="text"
-                      id="language"
-                      name="language"
-                      value={language.join(", ")}
-                      onChange={(e) => onLanguageChange(e.target.value)}
-                      placeholder="e.g. JavaScript"
+                    <Multiselect
+                      isObject={false}
+                      options={languageOptions}
+                      selectedValues={language}
+                      onRemove={onLanguageChange}
+                      onSelect={onLanguageChange}
+                      placeholder="Select Languages"
                       className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
-                    /> */}
-                    <div className="multiselect-container">
-                      <Multiselect
-                        isObject={false}
-                        options={languageOptions}
-                        selectedValues={language}
-                        onRemove={onLanguageChange}
-                        onSelect={onLanguageChange}
-                        placeholder="Select Languages"
-                        className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
-                        style={{
-                          chips: {
-                            // background: "black",
-                            fontWeight: "bold",
-                          },
-                          multiselectContainer: {
-                            color: "white",
-                          },
-                          searchBox: {
-                            // border: "none",
-                            // "border-bottom": "1px solid blue",
-                            // "border-radius": "0px",
-                          },
-                        }}
-                      />
-                    </div>
+                      style={{
+                        chips: {
+                          fontWeight: "bold",
+                        },
+                        multiselectContainer: {
+                          color: "white",
+                        },
+                      }}
+                    />
                   </div>
 
                   <div className="space-y-2">

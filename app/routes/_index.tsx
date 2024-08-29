@@ -118,8 +118,6 @@ export default function Index() {
   const [showFilter, setShowFilter] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
 
-  console.log(language)
-
   useEffect(() => {
     const url = new URL(window.location.href)
     setService((url.searchParams.get("service") || "github") as Service)
@@ -127,8 +125,6 @@ export default function Index() {
     setMaxStars(url.searchParams.get("maxStars") || "1000000")
     setMinForks(url.searchParams.get("minForks") || "0")
 
-    // setLanguage(url.searchParams.get("language") || "")
-    // setLanguage(url.searchParams.get("language")?.split(" ") || [])
     const languageParam = url.searchParams.get("language")
     setLanguage(languageParam ? languageParam.split(" ") : [])
 
@@ -179,10 +175,7 @@ export default function Index() {
     formData.set("minStars", minStars)
     formData.set("maxStars", maxStars)
     formData.set("minForks", minForks)
-
-    // formData.set("language", language)
     formData.set("language", language.join(" "))
-
     formData.set("isAssigned", isAssigned.toString())
     formData.set("category", category)
     formData.set("framework", framework)
@@ -200,10 +193,7 @@ export default function Index() {
     formData.set("minStars", minStars)
     formData.set("maxStars", maxStars)
     formData.set("minForks", minForks)
-
-    // formData.set("language", language)
     formData.set("language", language.join(" "))
-
     formData.set("isAssigned", isAssigned.toString())
     formData.set("category", category)
     formData.set("framework", framework)
@@ -392,7 +382,6 @@ export default function Index() {
                   minForks={minForks}
                   onMinForksChange={setMinForks}
                   language={language}
-                  // onLanguageChange={setLanguage}
                   onLanguageChange={handleLanguageChange}
                   isAssigned={isAssigned}
                   onIsAssignedChange={setIsAssigned}
