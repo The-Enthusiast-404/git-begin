@@ -51,6 +51,15 @@ export async function fetchGitHubIssues(params: FilterParams) {
             }
             timelineItems(first: 1, itemTypes: [CROSS_REFERENCED_EVENT]) {
               totalCount
+              nodes {
+                ... on CrossReferencedEvent {
+                  source {
+                    ... on PullRequest {
+                      state
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -77,39 +86,58 @@ export async function fetchGitHubIssues(params: FilterParams) {
     cursor: params.cursor,
   }
 
-  const response: any = await graphqlWithAuth(query, variables)
+  try {
+    const response: any = await graphqlWithAuth(query, variables)
 
-  const issues: Issue[] = response.search.nodes
-    .filter((issue: any) => {
-      const stars = issue.repository.stargazerCount
-      const forks = issue.repository.forkCount
-      return stars >= params.minStars && stars <= params.maxStars && forks >= params.minForks
-    })
-    .map((issue: any) => ({
-      id: issue.url,
-      title: issue.title,
-      html_url: issue.url,
-      created_at: issue.createdAt,
-      repository_url: issue.repository.url,
-      repository_name: issue.repository.nameWithOwner,
-      stars_count: issue.repository.stargazerCount,
-      fork_count: issue.repository.forkCount,
-      language: issue.repository.primaryLanguage?.name || null,
-      is_assigned: issue.assignees.totalCount > 0,
-      labels: issue.labels.nodes.map((label: any) => label.name),
-      comments_count: issue.comments.totalCount,
-      has_pull_requests: issue.timelineItems.totalCount > 0,
-    }))
+    const issues: Issue[] = response.search.nodes
+      .filter((issue: any) => {
+        const stars = issue.repository.stargazerCount
+        const forks = issue.repository.forkCount
+        return stars >= params.minStars && stars <= params.maxStars && forks >= params.minForks
+      })
+      .map((issue: any) => ({
+        id: issue.url,
+        title: issue.title,
+        html_url: issue.url,
+        created_at: issue.createdAt,
+        repository_url: issue.repository.url,
+        repository_name: issue.repository.nameWithOwner,
+        stars_count: issue.repository.stargazerCount,
+        fork_count: issue.repository.forkCount,
+        language: issue.repository.primaryLanguage?.name || null,
+        is_assigned: issue.assignees.totalCount > 0,
+        labels: issue.labels.nodes.map((label: any) => label.name),
+        comments_count: issue.comments.totalCount,
+        has_pull_requests: issue.timelineItems.totalCount > 0,
+        pr_status: issue.timelineItems.totalCount > 0 ? issue.timelineItems.nodes[0]?.source?.state || null : null,
+      }))
 
-  const sortedIssues = issues.sort(
-    (a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  )
+    // Insert the new filtering logic here
+    const filteredIssues = issues.filter(issue => {
+      if (!params.hasPullRequests) {
+        return !issue.has_pull_requests;
+      } else {
+        return issue.has_pull_requests && 
+               (issue.pr_status === 'OPEN' || 
+                issue.pr_status === 'DRAFT' || 
+                issue.pr_status === 'CLOSED' || 
+                issue.pr_status === null);
+      }
+    });
 
-  return {
-    issues: sortedIssues,
-    hasNextPage: response.search.pageInfo.hasNextPage,
-    endCursor: response.search.pageInfo.endCursor,
+    const sortedIssues = filteredIssues.sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+
+    return {
+      issues: sortedIssues,
+      hasNextPage: response.search.pageInfo.hasNextPage,
+      endCursor: response.search.pageInfo.endCursor,
+    }
+  } catch (error) {
+    console.error("Error fetching GitHub issues:", error)
+    throw error
   }
 }
 
@@ -126,36 +154,48 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
   })
 
   const query = `
-    query($queryString: String!, $cursor: String) {
-      search(query: $queryString, type: REPOSITORY, first: ${REPOS_PER_PAGE}, after: $cursor) {
-        pageInfo {
-          hasNextPage
-          endCursor
+    query($owner: String!, $name: String!, $cursor: String, $hasPR: Boolean!) {
+  repository(owner: $owner, name: $name) {
+    issues(first: 100, after: $cursor, orderBy: {field: CREATED_AT, direction: DESC}) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      nodes {
+        number
+        title
+        body
+        createdAt
+        closedAt
+        state
+        author {
+          login
         }
-        nodes {
-          ... on Repository {
-            nameWithOwner
-            url
-            stargazerCount
-            forkCount
-            primaryLanguage {
-              name
-            }
-            issues(labels: ["good first issue"], states: OPEN, first: ${ISSUES_PER_REPO}, orderBy: {field: CREATED_AT, direction: DESC}) {
-              nodes {
-                title
-                url
-                createdAt
-                assignees(first: 1) {
-                  totalCount
-                }
-                labels(first: 10) {
-                  nodes {
-                    name
-                  }
-                }
-                comments {
-                  totalCount
+        labels(first: 10) {
+          nodes {
+            name
+          }
+        }
+        milestone {
+          title
+        }
+        assignees(first: 5) {
+          nodes {
+            login
+          }
+        }
+        comments {
+          totalCount
+        }
+        timelineItems(first: 1, itemTypes: [CROSS_REFERENCED_EVENT]) {
+          nodes {
+            ... on CrossReferencedEvent {
+              source {
+                ... on PullRequest {
+                  number
+                  title
+                  state
+                  isDraft
                 }
               }
             }
@@ -163,6 +203,8 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
         }
       }
     }
+  }
+}
   `
 
   let queryString = "is:public archived:false"
