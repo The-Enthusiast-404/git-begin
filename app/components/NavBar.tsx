@@ -13,9 +13,9 @@ const NavBar = () => {
           Git Begin
         </h1>
       </div>
-      <div className="flex items-center space-x-4">
+      <div className="flex items-start space-x-4">
 
-          <GitHubButton href="https://github.com/The-Enthusiast-404/git-begin">Star</GitHubButton>
+        <GitHubButton href="https://github.com/The-Enthusiast-404/git-begin">Star</GitHubButton>
 
         <ThemeToggle />
       </div>
