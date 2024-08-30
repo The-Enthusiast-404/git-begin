@@ -103,7 +103,7 @@ export default function Index() {
   const [minStars, setMinStars] = useState("0")
   const [maxStars, setMaxStars] = useState("1000000")
   const [minForks, setMinForks] = useState("0")
-  const [language, setLanguage] = useState("")
+  const [language, setLanguage] = useState<string[]>([])
   const [isAssigned, setIsAssigned] = useState(false)
   const [category, setCategory] = useState("all")
   const [framework, setFramework] = useState("")
@@ -124,7 +124,10 @@ export default function Index() {
     setMinStars(url.searchParams.get("minStars") || "0")
     setMaxStars(url.searchParams.get("maxStars") || "1000000")
     setMinForks(url.searchParams.get("minForks") || "0")
-    setLanguage(url.searchParams.get("language") || "")
+
+    const languageParam = url.searchParams.get("language")
+    setLanguage(languageParam ? languageParam.split(" ") : [])
+
     setIsAssigned(url.searchParams.get("isAssigned") === "true")
     setCategory(url.searchParams.get("category") || "all")
     setFramework(url.searchParams.get("framework") || "")
@@ -141,6 +144,10 @@ export default function Index() {
     }
   }, [initialIssues, showBookmarked, isBookmarked])
 
+  const handleLanguageChange = (selectedLanguage: any) => {
+    setLanguage(selectedLanguage)
+  }
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
@@ -156,6 +163,7 @@ export default function Index() {
     formData.set("hasPullRequests", hasPullRequests.toString())
     formData.set("showBookmarked", showBookmarked.toString())
     formData.set("isAssigned", isAssigned.toString())
+    formData.set("language", language.join(" "))
     setIssues([])
     setIsSearching(true)
     submit(formData, { method: "get" })
@@ -167,7 +175,7 @@ export default function Index() {
     formData.set("minStars", minStars)
     formData.set("maxStars", maxStars)
     formData.set("minForks", minForks)
-    formData.set("language", language)
+    formData.set("language", language.join(" "))
     formData.set("isAssigned", isAssigned.toString())
     formData.set("category", category)
     formData.set("framework", framework)
@@ -185,7 +193,7 @@ export default function Index() {
     formData.set("minStars", minStars)
     formData.set("maxStars", maxStars)
     formData.set("minForks", minForks)
-    formData.set("language", language)
+    formData.set("language", language.join(" "))
     formData.set("isAssigned", isAssigned.toString())
     formData.set("category", category)
     formData.set("framework", framework)
@@ -238,9 +246,13 @@ export default function Index() {
 
     const formData = new FormData()
     Object.entries(newFilters).forEach(([key, value]) => {
-      formData.append(key, value.toString())
+      if (key === "language") {
+        formData.set(key, value.join(" "))
+      } else {
+        formData.append(key, value.toString())
+      }
     })
-    formData.set('service', service)
+    formData.set("service", service)
     setIssues([])
     setIsSearching(true)
     submit(formData, { method: "get" })
@@ -285,7 +297,8 @@ export default function Index() {
     </div>
   )
 
-  const isLoading = navigation.state === "loading" || navigation.state === "submitting"
+  const isLoading =
+    navigation.state === "loading" || navigation.state === "submitting"
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -296,10 +309,13 @@ export default function Index() {
         <div className="lg:hidden">
           <Card className="mb-4">
             <CardContent className="pt-6">
-              <form onSubmit={handleMobileSearch} className="flex items-center space-x-2">
-                <Input 
-                  type="text" 
-                  placeholder="Search issues..." 
+              <form
+                onSubmit={handleMobileSearch}
+                className="flex items-center space-x-2"
+              >
+                <Input
+                  type="text"
+                  placeholder="Search issues..."
                   value={mobileSearchQuery}
                   onChange={(e) => setMobileSearchQuery(e.target.value)}
                   className="flex-grow bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
@@ -314,7 +330,7 @@ export default function Index() {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-80">
-                    <FilterPopover 
+                    <FilterPopover
                       filters={{
                         minStars,
                         maxStars,
@@ -324,7 +340,7 @@ export default function Index() {
                         category,
                         framework,
                         hasPullRequests,
-                        showBookmarked
+                        showBookmarked,
                       }}
                       onFilterChange={handleFilterChange}
                       setShowFilter={setShowFilter}
@@ -366,7 +382,7 @@ export default function Index() {
                   minForks={minForks}
                   onMinForksChange={setMinForks}
                   language={language}
-                  onLanguageChange={setLanguage}
+                  onLanguageChange={handleLanguageChange}
                   isAssigned={isAssigned}
                   onIsAssignedChange={setIsAssigned}
                   category={category}
@@ -397,9 +413,7 @@ export default function Index() {
                     : "No issues found matching the current criteria. Try adjusting your filters."}
                 </div>
               )}
-              <div className="space-y-4 p-4">
-                {renderIssueList()}
-              </div>
+              <div className="space-y-4 p-4">{renderIssueList()}</div>
             </ScrollArea>
           </div>
         </div>
@@ -411,31 +425,36 @@ export default function Index() {
 }
 
 const FilterPopover = ({ filters, onFilterChange, setShowFilter }) => {
-  const [localFilters, setLocalFilters] = useState(filters);
+  const [localFilters, setLocalFilters] = useState(filters)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setLocalFilters(prev => ({ ...prev, [name]: value }));
-  };
+    const { name, value } = e.target
+    setLocalFilters((prev) => ({ ...prev, [name]: value }))
+  }
 
   const handleCheckboxChange = (name: string) => {
-    setLocalFilters(prev => ({ ...prev, [name]: !prev[name] }));
-  };
+    setLocalFilters((prev) => ({ ...prev, [name]: !prev[name] }))
+  }
 
   const handleCategoryChange = (value: string) => {
-    setLocalFilters(prev => ({ ...prev, category: value }));
-  };
+    setLocalFilters((prev) => ({ ...prev, category: value }))
+  }
 
   const handleApplyFilters = () => {
-    onFilterChange(localFilters);
-    setShowFilter(false);
-  };
+    onFilterChange(localFilters)
+    setShowFilter(false)
+  }
 
   return (
     <ScrollArea className="h-[80vh] w-full">
       <div className="space-y-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
         <div>
-          <Label htmlFor="minStars" className="text-gray-700 dark:text-gray-300">Min Stars</Label>
+          <Label
+            htmlFor="minStars"
+            className="text-gray-700 dark:text-gray-300"
+          >
+            Min Stars
+          </Label>
           <Input
             type="number"
             id="minStars"
@@ -447,7 +466,12 @@ const FilterPopover = ({ filters, onFilterChange, setShowFilter }) => {
           />
         </div>
         <div>
-        <Label htmlFor="maxStars" className="text-gray-700 dark:text-gray-300">Max Stars</Label>
+          <Label
+            htmlFor="maxStars"
+            className="text-gray-700 dark:text-gray-300"
+          >
+            Max Stars
+          </Label>
           <Input
             type="number"
             id="maxStars"
@@ -459,7 +483,12 @@ const FilterPopover = ({ filters, onFilterChange, setShowFilter }) => {
           />
         </div>
         <div>
-          <Label htmlFor="minForks" className="text-gray-700 dark:text-gray-300">Min Forks</Label>
+          <Label
+            htmlFor="minForks"
+            className="text-gray-700 dark:text-gray-300"
+          >
+            Min Forks
+          </Label>
           <Input
             type="number"
             id="minForks"
@@ -471,7 +500,12 @@ const FilterPopover = ({ filters, onFilterChange, setShowFilter }) => {
           />
         </div>
         <div>
-          <Label htmlFor="language" className="text-gray-700 dark:text-gray-300">Language</Label>
+          <Label
+            htmlFor="language"
+            className="text-gray-700 dark:text-gray-300"
+          >
+            Language
+          </Label>
           <Input
             type="text"
             id="language"
@@ -483,17 +517,29 @@ const FilterPopover = ({ filters, onFilterChange, setShowFilter }) => {
           />
         </div>
         <div>
-          <Label htmlFor="category" className="text-gray-700 dark:text-gray-300">Category</Label>
-          <Select 
-            value={localFilters.category} 
+          <Label
+            htmlFor="category"
+            className="text-gray-700 dark:text-gray-300"
+          >
+            Category
+          </Label>
+          <Select
+            value={localFilters.category}
             onValueChange={handleCategoryChange}
           >
-            <SelectTrigger id="category" className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+            <SelectTrigger
+              id="category"
+              className="mt-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            >
               <SelectValue placeholder="Select a category" />
             </SelectTrigger>
             <SelectContent className="bg-white dark:bg-gray-800">
               {categories.map((cat) => (
-                <SelectItem key={cat.value} value={cat.value} className="text-gray-900 dark:text-gray-100">
+                <SelectItem
+                  key={cat.value}
+                  value={cat.value}
+                  className="text-gray-900 dark:text-gray-100"
+                >
                   {cat.label}
                 </SelectItem>
               ))}
@@ -501,7 +547,12 @@ const FilterPopover = ({ filters, onFilterChange, setShowFilter }) => {
           </Select>
         </div>
         <div>
-          <Label htmlFor="framework" className="text-gray-700 dark:text-gray-300">Framework/Library</Label>
+          <Label
+            htmlFor="framework"
+            className="text-gray-700 dark:text-gray-300"
+          >
+            Framework/Library
+          </Label>
           <Input
             type="text"
             id="framework"
@@ -514,37 +565,55 @@ const FilterPopover = ({ filters, onFilterChange, setShowFilter }) => {
         </div>
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
-            <Checkbox 
+            <Checkbox
               id="isAssigned"
               checked={localFilters.isAssigned}
-              onCheckedChange={() => handleCheckboxChange('isAssigned')}
+              onCheckedChange={() => handleCheckboxChange("isAssigned")}
               className="border-gray-300 dark:border-gray-600"
             />
-            <Label htmlFor="isAssigned" className="text-gray-700 dark:text-gray-300">Include Assigned Issues</Label>
+            <Label
+              htmlFor="isAssigned"
+              className="text-gray-700 dark:text-gray-300"
+            >
+              Include Assigned Issues
+            </Label>
           </div>
           <div className="flex items-center space-x-2">
-            <Checkbox 
+            <Checkbox
               id="hasPullRequests"
               checked={localFilters.hasPullRequests}
-              onCheckedChange={() => handleCheckboxChange('hasPullRequests')}
+              onCheckedChange={() => handleCheckboxChange("hasPullRequests")}
               className="border-gray-300 dark:border-gray-600"
             />
-            <Label htmlFor="hasPullRequests" className="text-gray-700 dark:text-gray-300">Include Issues with Pull Requests</Label>
+            <Label
+              htmlFor="hasPullRequests"
+              className="text-gray-700 dark:text-gray-300"
+            >
+              Include Issues with Pull Requests
+            </Label>
           </div>
           <div className="flex items-center space-x-2">
-            <Checkbox 
+            <Checkbox
               id="showBookmarked"
               checked={localFilters.showBookmarked}
-              onCheckedChange={() => handleCheckboxChange('showBookmarked')}
+              onCheckedChange={() => handleCheckboxChange("showBookmarked")}
               className="border-gray-300 dark:border-gray-600"
             />
-            <Label htmlFor="showBookmarked" className="text-gray-700 dark:text-gray-300">Show Only Bookmarked Issues</Label>
+            <Label
+              htmlFor="showBookmarked"
+              className="text-gray-700 dark:text-gray-300"
+            >
+              Show Only Bookmarked Issues
+            </Label>
           </div>
         </div>
-        <Button onClick={handleApplyFilters} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+        <Button
+          onClick={handleApplyFilters}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+        >
           Apply Filters
         </Button>
       </div>
     </ScrollArea>
-  );
-};
+  )
+}

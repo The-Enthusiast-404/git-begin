@@ -71,7 +71,12 @@ export async function fetchGitHubIssues(params: FilterParams) {
   `
 
   let queryString = 'is:open is:issue label:"good first issue" archived:false'
-  if (params.language) queryString += ` language:${params.language}`
+  if(params.language) {
+    const languages = params.language.split(" ");
+    const languageQuery = languages.map(lang => `language:${lang}`).join(" ")
+    queryString += ` ${languageQuery}`
+  }
+
   if (params.isAssigned) {
     queryString += " assigned:*"
   } else {
@@ -201,7 +206,12 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
   `
 
   let queryString = "is:public archived:false"
-  if (params.language) queryString += ` language:${params.language}`
+  if(params.language) {
+    const languages = params.language.split(" ");
+    const languageQuery = languages.map(lang => `language:${lang}`).join(" ")
+    queryString += ` ${languageQuery}`
+  }
+  
   queryString += ` stars:${params.minStars}..${params.maxStars}`
   queryString += ` forks:>=${params.minForks}`
 
@@ -337,7 +347,11 @@ export async function fetchGitHubIssuesByFramework(params: FilterParams) {
   `
 
   let queryString = `topic:${params.framework} is:public archived:false`
-  if (params.language) queryString += ` language:${params.language}`
+  if(params.language) {
+    const languages = params.language.split(" ");
+    const languageQuery = languages.map(lang => `language:${lang}`).join(" ")
+    queryString += ` ${languageQuery}`
+  }
   queryString += ` stars:${params.minStars}..${params.maxStars}`
   queryString += ` forks:>=${params.minForks}`
 
