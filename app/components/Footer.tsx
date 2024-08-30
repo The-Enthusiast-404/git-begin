@@ -11,6 +11,17 @@ const Footer = () => {
               Git Begin is an open-source project to help developers find good
               first issues.
             </p>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+              This site is powered by{" "}
+              <a
+                href="https://www.netlify.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                Netlify
+              </a>
+            </p>
           </div>
           <div className="flex space-x-4">
             <Link
