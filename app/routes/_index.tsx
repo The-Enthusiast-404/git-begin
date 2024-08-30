@@ -52,6 +52,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     category: url.searchParams.get("category") || "all",
     framework: url.searchParams.get("framework") || "",
     hasPullRequests: url.searchParams.get("hasPullRequests") === "true",
+    searchQuery: url.searchParams.get("searchQuery") || "",
   }
 
   try {
@@ -130,6 +131,7 @@ export default function Index() {
     setFramework(url.searchParams.get("framework") || "")
     setHasPullRequests(url.searchParams.get("hasPullRequests") === "true")
     setShowBookmarked(url.searchParams.get("showBookmarked") === "true")
+    setMobileSearchQuery(url.searchParams.get("searchQuery") || "")
   }, [])
 
   useEffect(() => {
@@ -173,6 +175,7 @@ export default function Index() {
     formData.set("framework", framework)
     formData.set("hasPullRequests", hasPullRequests.toString())
     formData.set("showBookmarked", showBookmarked.toString())
+    formData.set("searchQuery", mobileSearchQuery)
     formData.set("cursor", endCursor || "")
     setIsSearching(true)
     submit(formData, { method: "get" })
@@ -191,6 +194,7 @@ export default function Index() {
     formData.set("framework", framework)
     formData.set("hasPullRequests", hasPullRequests.toString())
     formData.set("showBookmarked", showBookmarked.toString())
+    formData.set("searchQuery", mobileSearchQuery)
     setIssues([])
     setIsSearching(true)
     submit(formData, { method: "get" })
@@ -214,12 +218,13 @@ export default function Index() {
     formData.set("minStars", minStars)
     formData.set("maxStars", maxStars)
     formData.set("minForks", minForks)
-    formData.set("language", mobileSearchQuery)
+    formData.set("language", language)
     formData.set("isAssigned", isAssigned.toString())
     formData.set("category", category)
     formData.set("framework", framework)
     formData.set("hasPullRequests", hasPullRequests.toString())
     formData.set("showBookmarked", showBookmarked.toString())
+    formData.set("searchQuery", mobileSearchQuery)
     setIssues([])
     setIsSearching(true)
     submit(formData, { method: "get" })
@@ -241,6 +246,7 @@ export default function Index() {
       formData.append(key, value.toString())
     })
     formData.set('service', service)
+    formData.set('searchQuery', mobileSearchQuery)
     setIssues([])
     setIsSearching(true)
     submit(formData, { method: "get" })
