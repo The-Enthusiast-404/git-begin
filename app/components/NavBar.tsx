@@ -1,6 +1,4 @@
 import ThemeToggle from "~/components/ToggleTheme"
-import { FaGithub } from "react-icons/fa"
-import { Link } from "@remix-run/react"
 import GitHubButton from "react-github-btn"
 
 
@@ -17,7 +15,7 @@ const NavBar = () => {
       </div>
       <div className="flex items-center space-x-4">
 
-          <GitHubButton href="https://github.com/The-Enthusiast-404/git-begin"> Star</GitHubButton>
+          <GitHubButton href="https://github.com/The-Enthusiast-404/git-begin">Star</GitHubButton>
 
         <ThemeToggle />
       </div>
