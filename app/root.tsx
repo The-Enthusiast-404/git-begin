@@ -3,8 +3,17 @@ import clsx from "clsx"
 import { PreventFlashOnWrongTheme, ThemeProvider, useTheme } from "remix-themes"
 
 import { themeSessionResolver } from "./sessions.server"
-import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from "@remix-run/react"
+import {
+  Links,
+  LiveReload,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useLoaderData,
+} from "@remix-run/react"
 import { LoaderFunctionArgs } from "@remix-run/node"
+import { Suspense } from "react"
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { getTheme } = await themeSessionResolver(request)
@@ -27,23 +36,28 @@ export function App() {
   const [theme] = useTheme()
   return (
     <html lang="en" className={clsx(theme)}>
-    <head>
-      <meta charSet="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" />
-      <link href="https://fonts.googleapis.com/css2?family=Edu+VIC+WA+NT+Beginner:wght@400..700&display=swap"
-            rel="stylesheet" />
-      <Meta />
-      <PreventFlashOnWrongTheme ssrTheme={Boolean(data.theme)} />
-      <Links />
-      <title>Git Begin</title>
-    </head>
-    <body>
-    <Outlet />
-    <ScrollRestoration />
-    <Scripts />
-    </body>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Edu+VIC+WA+NT+Beginner:wght@400..700&display=swap"
+          rel="stylesheet"
+        />
+        <Meta />
+        <PreventFlashOnWrongTheme ssrTheme={Boolean(data.theme)} />
+        <Links />
+        <title>Git Begin</title>
+      </head>
+      <body>
+        <Suspense>
+          <Outlet />
+        </Suspense>
+
+        <ScrollRestoration />
+        <Scripts />
+      </body>
     </html>
   )
 }
