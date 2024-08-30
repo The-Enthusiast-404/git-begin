@@ -87,6 +87,9 @@ export async function fetchGitHubIssues(params: FilterParams) {
   } else {
     queryString += " -linked:pr"
   }
+  if (params.searchQuery) {
+    queryString += ` ${params.searchQuery} in:title,body`
+  }
   queryString += " sort:created-desc"
 
   const variables = {
@@ -241,6 +244,10 @@ export async function fetchGitHubIssuesByCategory(params: FilterParams) {
     }
   }
 
+  if (params.searchQuery) {
+    queryString += ` ${params.searchQuery} in:name,description`
+  }
+
   const variables = {
     queryString,
     cursor: params.cursor,
@@ -354,6 +361,9 @@ export async function fetchGitHubIssuesByFramework(params: FilterParams) {
   }
   queryString += ` stars:${params.minStars}..${params.maxStars}`
   queryString += ` forks:>=${params.minForks}`
+  if (params.searchQuery) {
+    queryString += ` ${params.searchQuery} in:name,description`
+  }
 
   const variables = {
     queryString,
