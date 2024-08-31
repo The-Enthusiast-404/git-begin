@@ -220,19 +220,27 @@ export function FilterForm({
                         selectedValues={language}
                         onRemove={onLanguageChange}
                         onSelect={onLanguageChange}
-                        placeholder="Select Languages"
+                        placeholder={
+                          language.length === 0 ? "Select Languages" : ""
+                        }
                         className="bg-white dark:bg-gray-800 text-black dark:text-white border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200"
                         style={{
                           chips: {
                             fontWeight: "bold",
+                            marginRight: "4px",
                           },
                           searchBox: {
                             // To change search box element look
                             border: "none",
+                            display: "flex",
+                            flexWrap: "wrap",
+                            alignItem: "center",
                           },
                           inputField: {
                             // To change input field position or margin
-                            padding: "3px",
+                            padding: language.length === 0 ? "6px" : "0",
+                            width: language.length === 0 ? "100%" : "1px",
+                            height: "100%",
                           },
                           optionContainer: {
                             // To Set the dropdown background
