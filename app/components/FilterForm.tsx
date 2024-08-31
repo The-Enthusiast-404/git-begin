@@ -234,7 +234,6 @@ export function FilterForm({
                             border: "none",
                             display: "flex",
                             flexWrap: "wrap",
-                            alignItem: "center",
                           },
                           inputField: {
                             // To change input field position or margin
