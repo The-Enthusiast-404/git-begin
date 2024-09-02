@@ -6,8 +6,8 @@ const languages = [
     { value: "pt", label: "Portuguese" },
     { value: "it", label: "Italian"},
     { value: "in", label: "Indian"},
-    { value: "zhCN", label: "Simplified chinese"},
-    { value: "zhTW", label: "Traditional chinese"}
+    { value: "zh-CN", label: "Simplified chinese"},
+    { value: "zh-TW", label: "Traditional chinese"}
   ]
   
   export { languages }

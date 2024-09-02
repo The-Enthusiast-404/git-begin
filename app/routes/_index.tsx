@@ -37,7 +37,7 @@ import { IssueCard } from "~/components/IssueCard"
 import NavBar from "~/components/NavBar"
 import Footer from "~/components/Footer"
 import { useBookmarks } from "~/hooks/useBookmarks"
-import { categories } from "~/data/categories"
+import { useCategories } from "~/data/categories"
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
@@ -450,6 +450,8 @@ const FilterPopover = ({ filters, onFilterChange, setShowFilter }) => {
     onFilterChange(localFilters)
     setShowFilter(false)
   }
+
+  const categories = useCategories()
 
   return (
     <ScrollArea className="h-[80vh] w-full">

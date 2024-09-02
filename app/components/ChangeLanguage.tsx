@@ -22,6 +22,7 @@ function ChangeLanguage() {
 
     const handleLanguageChange = (value: string) => {
         storeLanguage(value);
+        window.location.reload()
     };
 
     return (

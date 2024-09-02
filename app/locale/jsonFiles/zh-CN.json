@@ -1,6 +1,6 @@
 {
     "translation": {
-      "githubIssueFiltersTitle": "GitHub 问题过滤器",
+      "issueFiltersTitle": "问题过滤器",
       "filters": {
         "minStars": "敏星",
         "maxStars": "最大星星",

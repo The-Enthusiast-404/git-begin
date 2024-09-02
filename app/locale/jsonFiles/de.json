@@ -1,6 +1,6 @@
 {
     "translation": {
-      "githubIssueFiltersTitle": "GitHub-Problemfilter",
+      "issueFiltersTitle": "Problemfilter",
       "filters": {
         "minStars": "Min. Sterne",
         "maxStars": "Max Sterne",
