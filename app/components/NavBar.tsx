@@ -3,9 +3,8 @@ import GitHubButton from "react-github-btn"
 import ChangeLanguage from "~/components/ChangeLanguage"
 
 const NavBar = () => {
-  
   return (
-    <nav className="flex justify-between items-center py-4 px-8">
+    <nav className="flex flex-col md:flex-row lg:flex-row justify-between items-center py-4 px-8">
       <div className="flex-grow text-center">
         <h1
           className="text-4xl font-bold"
@@ -14,7 +13,7 @@ const NavBar = () => {
           Git Begin
         </h1>
       </div>
-      <div className="flex items-center py-2 space-x-4">
+      <div className="flex items-center pt-6 md:pt-0 lg:py-2 space-x-4">
 
         <ChangeLanguage />
 

@@ -38,6 +38,7 @@ import NavBar from "~/components/NavBar"
 import Footer from "~/components/Footer"
 import { useBookmarks } from "~/hooks/useBookmarks"
 import { useCategories } from "~/data/categories"
+import { useTranslatedText } from "~/locale/languageUtility"
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
@@ -269,6 +270,8 @@ export default function Index() {
       setIsSearching(false)
     }
   }, [navigation.state])
+  
+  const t = useTranslatedText()
 
   const renderIssueList = () => (
     <div className="space-y-4">
@@ -294,7 +297,7 @@ export default function Index() {
                 disabled={isSearching}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                {isSearching ? "Loading..." : "Load More"}
+                {isSearching ? "Loading..." : t('loadMore')}
               </Button>
             </div>
           )}
@@ -321,7 +324,7 @@ export default function Index() {
               >
                 <Input
                   type="text"
-                  placeholder="Search issues..."
+                  placeholder= {t('search')}
                   value={mobileSearchQuery}
                   onChange={(e) => setMobileSearchQuery(e.target.value)}
                   className="flex-grow bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
