@@ -13,7 +13,7 @@ const Footer = () => {
             <p className="text-sm text-gray-600 dark:text-gray-300">
               {t('footer.gitBegin')}
             </p>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+            <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 md:text-center">
               {t('footer.websitePowered')}{" "}
               <a
                 href="https://www.netlify.com"
