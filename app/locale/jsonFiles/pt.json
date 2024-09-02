@@ -1,0 +1,40 @@
+{
+    "translation": {
+      "githubIssueFiltersTitle": "Filtros de problemas do GitHub",
+      "filters": {
+        "minStars": "Estrelas mínimas",
+        "maxStars": "Máximo de estrelas",
+        "language": "Linguagem",
+        "category": "Categoria",
+        "allCategories": "Todas as categorias",
+        "categories": {
+          "education": "Educação",
+          "web_development": "Desenvolvimento Web",
+          "mobile_development": "Desenvolvimento Móvel",
+          "ios_development": "Desenvolvimento iOS",
+          "blockchain_development": "Desenvolvimento de Blockchain",
+          "data_science": "Ciência de Dados",
+          "artificial_intelligence": "Inteligência artificial",
+          "machine_learning": "Aprendizado de máquina",
+          "devops": "DevOps",
+          "cybersecurity": "Cibersegurança",
+          "operating_system": "Sistema operacional",
+          "documentation": "Documentação"
+        },
+        "frameworkLibrary": "Estrutura/Biblioteca",
+        "assigned": "Atribuído",
+        "includeAssignedIssues": "Incluir problemas atribuídos",
+        "hasPullRequests": "Tem solicitações pull",
+        "includeIssuesPR": "Incluir problemas com solicitações pull",
+        "showBookmark": "Mostrar favorito",
+        "showOnlyBookmark": "Mostrar apenas problemas marcados como favoritos",
+        "filter": "Filtro"
+      },
+      "loadMore": "Carregar mais",
+      "search": "Problemas de pesquisa",
+      "footer": {
+        "gitBegin": "Git Begin é um projeto de código aberto para ajudar os desenvolvedores a encontrar bons primeiros problemas.",
+        "websitePowered": "Este site é alimentado por"
+      }
+    }
+  }

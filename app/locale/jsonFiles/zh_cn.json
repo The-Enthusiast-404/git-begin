@@ -1,0 +1,40 @@
+{
+    "translation": {
+      "githubIssueFiltersTitle": "GitHub 问题过滤器",
+      "filters": {
+        "minStars": "敏星",
+        "maxStars": "最大星星",
+        "language": "语言",
+        "category": "类别",
+        "allCategories": "所有类别",
+        "categories": {
+          "education": "教育",
+          "web_development": "网页开发",
+          "mobile_development": "移动开发",
+          "ios_development": "IOS开发",
+          "blockchain_development": "区块链开发",
+          "data_science": "数据科学",
+          "artificial_intelligence": "人工智能",
+          "machine_learning": "机器学习",
+          "devops": "开发运营",
+          "cybersecurity": "网络安全",
+          "operating_system": "操作系统",
+          "documentation": "文档"
+        },
+        "frameworkLibrary": "框架/库",
+        "assigned": "已分配",
+        "includeAssignedIssues": "包括分配的问题",
+        "hasPullRequests": "有请求请求",
+        "includeIssuesPR": "将问题包含在拉取请求中",
+        "showBookmark": "显示已添加书签",
+        "showOnlyBookmark": "仅显示已添加书签的问题",
+        "filter": "筛选"
+      },
+      "loadMore": "加载更多",
+      "search": "搜索问题",
+      "footer": {
+        "gitBegin": "Git Begin 是一个开源项目，旨在帮助开发人员找到好的首要问题。",
+        "websitePowered": "本网站由"
+      }
+    }
+  }

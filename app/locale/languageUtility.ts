@@ -1,31 +1,34 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-const languages = ["en"] as const;
-type LanguageCode = typeof languages[number];
+const LOCAL_STORAGE_KEY = 'language';
 
-const LOCAL_STORAGE_KEY = 'detectedLanguage';
+export function storeLanguage(languageToStore: string) {
+    localStorage.setItem(LOCAL_STORAGE_KEY, languageToStore);
+}
 
-function useTranslatedText() {
-    const { t } = useTranslation();
+export function getCurrentLanguage() {
+    const cachedLanguage = localStorage.getItem(LOCAL_STORAGE_KEY);
+    let currentLanguage: string;
+
+    if (cachedLanguage === null) {
+        // Default value
+        currentLanguage = "en"
+    } else {
+        currentLanguage = cachedLanguage;
+    }
+
+    return currentLanguage;
+}
+
+export function useTranslatedText() {
+    const { t, i18n } = useTranslation();
+
+    const currentLanguage = getCurrentLanguage();
+
+    if (currentLanguage && currentLanguage !== i18n.language) {
+        i18n.changeLanguage(currentLanguage);
+    }
+
+    // t is the function that allows you to use the translation
     return t;
 }
-
-function setLanguage(code: LanguageCode) {
-    let cachedLanguage: LanguageCode | null = null;
-    const storedValue = localStorage.getItem(LOCAL_STORAGE_KEY);
-
-
-    if (storedValue && languages.includes(storedValue as LanguageCode)) {
-        cachedLanguage = storedValue as LanguageCode;
-    }
-
-    function setCurrentLanguage(languageValue: LanguageCode) {
-        const { i18n: { changeLanguage, language } } = useTranslation();
-        const [currentLanguage, setCurrentLanguage] = useState<LanguageCode>(language as LanguageCode);
-
-        {/* TODO: Continue to implement setCurrentLanguage */}
-    }
-}
-
-export default useTranslatedText

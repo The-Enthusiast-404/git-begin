@@ -14,13 +14,15 @@ const NavBar = () => {
           Git Begin
         </h1>
       </div>
-      <div className="flex items-start space-x-4">
-
-        <GitHubButton href="https://github.com/The-Enthusiast-404/git-begin">Star</GitHubButton>
+      <div className="flex items-center py-2 space-x-4">
 
         <ChangeLanguage />
 
-        <ThemeToggle />
+        <GitHubButton href="https://github.com/The-Enthusiast-404/git-begin">Star</GitHubButton>
+
+        <div>
+          <ThemeToggle />
+        </div>
       </div>
     </nav>
   )
