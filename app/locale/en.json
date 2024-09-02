@@ -1,0 +1,40 @@
+{
+    "translation": {
+        "githubIssueFiltersTitle": "GitHub Issue Filters",
+        "filters": {
+            "minStars": "Min Stars",
+            "maxStars": "Max Stars",
+            "language": "Language",
+            "category": "Category",
+            "allCategories": "All Categories",
+            "categories": {
+                "education": "Education",
+                "web_development": "Web Development",
+                "mobile_development": "Mobile Development",
+                "ios_development": "Ios Development",
+                "blockchain_development": "Blockchain Development",
+                "data_science": "Data Science",
+                "artificial_intelligence": "Artificial Intelligence",
+                "machine_learning": "Machine Learning",
+                "devops": "DevOps",
+                "cybersecurity": "Cybersecurity",
+                "operating_system": "Operating System",
+                "documentation": "Documentation"
+            },
+            "frameworkLibrary": "Framework/Library",
+            "assigned": "Assigned",
+            "includeAssignedIssues": "Include Assigned Issues",
+            "hasPullRequests": "Has Pull Requests",
+            "includeIssuesPR": "Include Issues with Pull Requests",
+            "showBookmark": "Show Bookmarked",
+            "showOnlyBookmark": "Show Only Bookmarked Issues",
+            "filter": "Filter"
+        },
+        "loadMore": "Load More",
+        "search": "Search Issues",
+        "footer": {
+            "gitBegin": "Git Begin is an open-source project to help developers find good first issues.",
+            "websitePowered": "This site is powered by"
+        }
+    }
+}
