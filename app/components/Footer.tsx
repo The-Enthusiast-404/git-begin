@@ -5,13 +5,13 @@ const Footer = () => {
   return (
     <footer className="bg-gray-100 dark:bg-gray-800 py-6 mt-12">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-4 md:mb-0">
+        <div className="flex flex-col justify-between items-center">
+          <div className="mb-4">
             <p className="text-sm text-gray-600 dark:text-gray-300">
               Git Begin is an open-source project to help developers find good
               first issues.
             </p>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+            <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 md:text-center">
               This site is powered by{" "}
               <a
                 href="https://www.netlify.com"
