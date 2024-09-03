@@ -7,6 +7,6 @@ jest.mock("@octokit/graphql")
 
 describe("", () => {
   it("should calculate correct sum", () => {
-    expect(1 + 2).toBe(3)
+    expect(1 + 2).toBe(2)
   })
 })

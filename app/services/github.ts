@@ -1,5 +1,5 @@
 import { graphql } from "@octokit/graphql"
-import { Issue, FilterParams } from "../types"
+import { Issue, FilterParams } from "~/types"
 
 const ISSUES_PER_PAGE = 30
 const REPOS_PER_PAGE = 10
