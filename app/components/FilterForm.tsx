@@ -25,7 +25,7 @@ import { Service } from "~/types"
 import GitLabLogo from "~/components/GitLabLogo"
 import { Multiselect } from "multiselect-react-dropdown"
 import { useTranslatedText } from "~/locale/languageUtility"
-import { useCategories } from "~/data/categories"
+import { useCategories } from "~/hooks/useCategories"
 type FilterFormProps = {
   service: Service
   minStars: string

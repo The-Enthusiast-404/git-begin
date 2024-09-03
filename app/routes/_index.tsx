@@ -37,8 +37,8 @@ import { IssueCard } from "~/components/IssueCard"
 import NavBar from "~/components/NavBar"
 import Footer from "~/components/Footer"
 import { useBookmarks } from "~/hooks/useBookmarks"
-import { useCategories } from "~/data/categories"
 import { useTranslatedText } from "~/locale/languageUtility"
+import { useCategories } from "~/hooks/useCategories"
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
