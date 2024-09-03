@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import i18n from "~/i18n";
 
@@ -21,24 +22,28 @@ export function getCurrentLanguage() {
   return currentLanguage;
 }
 
-function updateLanguage() {
+async function updateLanguage() {
   const currentLanguage = getCurrentLanguage();
 
-  if (currentLanguage && currentLanguage !== i18n.language) {
-    i18n.changeLanguage(currentLanguage).then(() => {
-      // Nothing to do because language was changed correctly
-    }).catch((error) => {
+  if (!currentLanguage || currentLanguage === i18n.language) {
+    return;
+  }
 
-      console.error('Error changing language:', error);
-    });
+  try {
+    await i18n.changeLanguage(currentLanguage);
+    // Language was changed successfully
+  } catch (error) {
+    console.error(`Error changing language to ${currentLanguage}:`, error);
   }
 }
 
 export function useTranslatedText() {
   const { t } = useTranslation();
 
-  updateLanguage()
+  useEffect(() => {
+    updateLanguage();
+  }, []);
 
-  // t is the function that allows you to use the translation
   return t;
 }
+
