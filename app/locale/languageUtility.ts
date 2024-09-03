@@ -21,19 +21,23 @@ export function getCurrentLanguage() {
   return currentLanguage;
 }
 
-export function useTranslatedText() {
-  const { t } = useTranslation();
-
+function updateLanguage() {
   const currentLanguage = getCurrentLanguage();
 
   if (currentLanguage && currentLanguage !== i18n.language) {
     i18n.changeLanguage(currentLanguage).then(() => {
-
+      // Nothing to do because language was changed correctly
     }).catch((error) => {
 
       console.error('Error changing language:', error);
     });
   }
+}
+
+export function useTranslatedText() {
+  const { t } = useTranslation();
+
+  updateLanguage()
 
   // t is the function that allows you to use the translation
   return t;
