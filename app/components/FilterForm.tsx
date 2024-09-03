@@ -23,8 +23,9 @@ import {
 } from "@/components/ui/tooltip"
 import { Service } from "~/types"
 import GitLabLogo from "~/components/GitLabLogo"
-import { categories } from "~/data/categories"
 import { Multiselect } from "multiselect-react-dropdown"
+import { useTranslatedText } from "~/locale/languageUtility"
+import { useCategories } from "~/hooks/useCategories"
 type FilterFormProps = {
   service: Service
   minStars: string
@@ -96,6 +97,9 @@ export function FilterForm({
     setDomLoaded(true)
   }, [])
 
+  const t = useTranslatedText()
+  const categories = useCategories()
+
   return (
     <div className="mb-8">
       <Tabs
@@ -146,7 +150,7 @@ export function FilterForm({
                   <GitLabLogo />
                 )}
                 <span className="ml-2">
-                  {service === "github" ? "GitHub" : "GitLab"} Issue Filters
+                  {service === "github" ? "GitHub" : "GitLab"} {t('issueFiltersTitle')}
                 </span>
               </CardTitle>
             </CardHeader>
@@ -156,7 +160,7 @@ export function FilterForm({
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-1">
                   <div className="space-y-2">
                     <label htmlFor="minStars" className="text-sm font-medium">
-                      Min Stars
+                      {t('filters.minStars')}
                     </label>
                     <Input
                       type="number"
@@ -175,7 +179,7 @@ export function FilterForm({
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="maxStars" className="text-sm font-medium">
-                      Max Stars
+                      {t('filters.maxStars')}
                     </label>
                     <Input
                       type="number"
@@ -211,7 +215,7 @@ export function FilterForm({
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="language" className="text-sm font-medium">
-                      Language
+                      {t('filters.language')}
                     </label>
                     {domLoaded && (
                       <Multiselect
@@ -266,7 +270,7 @@ export function FilterForm({
 
                   <div className="space-y-2">
                     <label htmlFor="category" className="text-sm font-medium">
-                      Category
+                      {t('filters.category')}
                     </label>
                     <div className="bg-white dark:bg-gray-800 text-black dark:text-white py-1 light:border-transparent dark:border-transparent focus-within:border-blue-500 focus-within:outline-none rounded-md transition-colors duration-200">
                       <Select value={category} onValueChange={onCategoryChange}>
@@ -290,7 +294,7 @@ export function FilterForm({
 
                   <div className="space-y-2">
                     <label htmlFor="framework" className="text-sm font-medium">
-                      Framework/Library
+                      {t('filters.frameworkLibrary')}
                     </label>
                     <Input
                       type="text"
@@ -308,7 +312,7 @@ export function FilterForm({
                       htmlFor="isAssigned"
                       className="text-sm font-medium text-black dark:text-white"
                     >
-                      Assigned
+                      {t('filters.assigned')}
                     </label>
                     <br />
                     <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200">
@@ -326,7 +330,7 @@ export function FilterForm({
                           htmlFor="isAssigned"
                           className="text-sm font-medium leading-none text-black dark:text-white peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                         >
-                          Include Assigned Issues
+                          {t('filters.includeAssignedIssues')}
                         </label>
                       </div>
                     </div>
@@ -337,7 +341,7 @@ export function FilterForm({
                       htmlFor="hasPullRequests"
                       className="text-sm font-medium text-black dark:text-white"
                     >
-                      Has Pull Requests
+                      {t('filters.hasPullRequests')}
                     </label>
                     <br />
                     <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200">
@@ -355,7 +359,7 @@ export function FilterForm({
                           htmlFor="hasPullRequests"
                           className="text-sm font-medium leading-none text-black dark:text-white peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                         >
-                          Include Issues with Pull Requests
+                          {t('filters.includeIssuesPR')}
                         </label>
                       </div>
                     </div>
@@ -366,7 +370,7 @@ export function FilterForm({
                       htmlFor="showBookmarked"
                       className="text-sm font-medium text-black dark:text-white"
                     >
-                      Show Bookmarked
+                      {t('filters.showBookmark')}
                     </label>
                     <br />
                     <div className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-200">
@@ -384,7 +388,7 @@ export function FilterForm({
                           htmlFor="showBookmarked"
                           className="text-sm font-medium leading-none text-black dark:text-white peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                         >
-                          Show Only Bookmarked Issues
+                          {t('filters.showOnlyBookmark')}
                         </label>
                       </div>
                     </div>
@@ -399,7 +403,7 @@ export function FilterForm({
                   }`}
                   disabled={isLoading}
                 >
-                  {isLoading ? "Filtering..." : "Filter"}
+                  {isLoading ? "Filtering..." : t('filters.filter')}
                 </Button>
               </Form>
             </CardContent>

@@ -1,0 +1,40 @@
+{
+    "translation": {
+      "issueFiltersTitle": "Filter Masalah",
+      "filters": {
+        "minStars": "Bintang Min",
+        "maxStars": "Bintang Maks",
+        "language": "Bahasa",
+        "category": "Kategori",
+        "allCategories": "Semua Kategori",
+        "categories": {
+          "education": "Pendidikan",
+          "web_development": "Pengembangan Web",
+          "mobile_development": "Pengembangan Seluler",
+          "ios_development": "Pengembangan iOS",
+          "blockchain_development": "Pengembangan Blockchain",
+          "data_science": "Ilmu Data",
+          "artificial_intelligence": "Kecerdasan Buatan",
+          "machine_learning": "Pembelajaran Mesin",
+          "devops": "DevOps",
+          "cybersecurity": "Keamanan siber",
+          "operating_system": "Sistem Operasi",
+          "documentation": "Dokumentasi"
+        },
+        "frameworkLibrary": "Kerangka/Perpustakaan",
+        "assigned": "Ditugaskan",
+        "includeAssignedIssues": "Sertakan Masalah yang Ditugaskan",
+        "hasPullRequests": "Memiliki Permintaan Tarik",
+        "includeIssuesPR": "Sertakan Masalah dengan Permintaan Tarik",
+        "showBookmark": "Tampilkan Ditandai",
+        "showOnlyBookmark": "Tampilkan Hanya Masalah yang Ditandai",
+        "filter": "Menyaring"
+      },
+      "loadMore": "Muat Lebih Banyak",
+      "search": "Masalah Pencarian",
+      "footer": {
+        "gitBegin": "Git Begin adalah proyek sumber terbuka untuk membantu pengembang menemukan isu pertama yang bagus.",
+        "websitePowered": "Situs ini didukung oleh"
+      }
+    }
+  }

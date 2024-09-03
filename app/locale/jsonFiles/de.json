@@ -1,0 +1,40 @@
+{
+    "translation": {
+      "issueFiltersTitle": "Problemfilter",
+      "filters": {
+        "minStars": "Min. Sterne",
+        "maxStars": "Max Sterne",
+        "language": "Sprache",
+        "category": "Kategorie",
+        "allCategories": "Alle Kategorien",
+        "categories": {
+          "education": "Ausbildung",
+          "web_development": "Webentwicklung",
+          "mobile_development": "Mobile Entwicklung",
+          "ios_development": "iOS-Entwicklung",
+          "blockchain_development": "Blockchain-Entwicklung",
+          "data_science": "Datenwissenschaft",
+          "artificial_intelligence": "Künstliche Intelligenz",
+          "machine_learning": "Maschinelles Lernen",
+          "devops": "DevOps",
+          "cybersecurity": "Cybersicherheit",
+          "operating_system": "Betriebssystem",
+          "documentation": "Dokumentation"
+        },
+        "frameworkLibrary": "Framework/Bibliothek",
+        "assigned": "Zugewiesen",
+        "includeAssignedIssues": "Zugewiesene Probleme einbeziehen",
+        "hasPullRequests": "Hat Pull-Anfragen",
+        "includeIssuesPR": "Beziehen Sie Probleme mit Pull-Anfragen ein",
+        "showBookmark": "Mit Lesezeichen versehen anzeigen",
+        "showOnlyBookmark": "Nur mit Lesezeichen versehene Probleme anzeigen",
+        "filter": "Filter"
+      },
+      "loadMore": "Mehr laden",
+      "search": "Suchprobleme",
+      "footer": {
+        "gitBegin": "Git Begin ist ein Open-Source-Projekt, das Entwicklern dabei hilft, gute erste Probleme zu finden.",
+        "websitePowered": "Diese Seite wird betrieben von"
+      }
+    }
+  }
