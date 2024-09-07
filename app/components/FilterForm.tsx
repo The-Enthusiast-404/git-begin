@@ -277,7 +277,9 @@ export function FilterForm({
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 border-2 border-gray-300 dark:border-transparent rounded-md shadow-lg w-full">
+                        <SelectContent className="bg-white dark:bg-gray-800 text-black dark:text-white p-3 
+                        border-2 border-gray-300 dark:border-transparent rounded-md shadow-lg  
+                         max-h-[--radix-select-content-available-height]" >
                           {categories.map((cat) => (
                             <SelectItem
                               key={cat.value}
