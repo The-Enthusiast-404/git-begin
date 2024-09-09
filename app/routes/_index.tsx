@@ -147,7 +147,35 @@ export default function Index() {
     }
   }, [initialIssues, showBookmarked, isBookmarked])
 
-  const handleLanguageChange = (selectedLanguage: any) => {
+  useEffect(() => {
+    const formData = new FormData()
+    formData.set("service", service)
+    formData.set("minStars", minStars)
+    formData.set("maxStars", maxStars)
+    formData.set("minForks", minForks)
+    formData.set("language", language.join(" "))
+    formData.set("isAssigned", isAssigned.toString())
+    formData.set("category", category)
+    formData.set("framework", framework)
+    formData.set("hasPullRequests", hasPullRequests.toString())
+    formData.set("showBookmarked", showBookmarked.toString())
+    formData.set("searchQuery", mobileSearchQuery)
+    setIssues([])
+    setIsSearching(true)
+    submit(formData, { method: "get" })
+  }, [
+    service,
+    minStars,
+    maxStars,
+    minForks,
+    language,
+    category,
+    framework,
+    isAssigned,
+    hasPullRequests,
+  ])
+
+  const handleLanguageChange = (selectedLanguage: string) => {
     setLanguage(selectedLanguage)
   }
 
@@ -227,7 +255,7 @@ export default function Index() {
     formData.set("minStars", minStars)
     formData.set("maxStars", maxStars)
     formData.set("minForks", minForks)
-    formData.set("language", language)
+    formData.set("language", language.join(" "))
     formData.set("isAssigned", isAssigned.toString())
     formData.set("category", category)
     formData.set("framework", framework)
@@ -258,8 +286,8 @@ export default function Index() {
         formData.append(key, value.toString())
       }
     })
-    formData.set('service', service)
-    formData.set('searchQuery', mobileSearchQuery)
+    formData.set("service", service)
+    formData.set("searchQuery", mobileSearchQuery)
     setIssues([])
     setIsSearching(true)
     submit(formData, { method: "get" })
