@@ -39,21 +39,38 @@ import Footer from "~/components/Footer"
 import { useBookmarks } from "~/hooks/useBookmarks"
 import { useTranslatedText } from "~/locale/languageUtility"
 import { useCategories } from "~/hooks/useCategories"
+import { defaultFilters } from "~/data/defaults"
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
   const params: FilterParams = {
-    service: (url.searchParams.get("service") || "github") as Service,
-    minStars: parseInt(url.searchParams.get("minStars") || "0", 10),
-    maxStars: parseInt(url.searchParams.get("maxStars") || "1000000", 10),
-    minForks: parseInt(url.searchParams.get("minForks") || "0", 10),
-    language: url.searchParams.get("language") || "",
-    isAssigned: url.searchParams.get("isAssigned") === "true",
+    service: (url.searchParams.get("service") ||
+      defaultFilters.service) as Service,
+    minStars: parseInt(
+      url.searchParams.get("minStars") || defaultFilters.minStars,
+      10
+    ),
+    maxStars: parseInt(
+      url.searchParams.get("maxStars") || defaultFilters.maxStars,
+      10
+    ),
+    minForks: parseInt(
+      url.searchParams.get("minForks") || defaultFilters.minForks,
+      10
+    ),
+    language:
+      url.searchParams.get("language") || defaultFilters.language.join(" "),
+    isAssigned:
+      url.searchParams.get("isAssigned") === "true" ||
+      defaultFilters.isAssigned,
     cursor: url.searchParams.get("cursor") || null,
-    category: url.searchParams.get("category") || "all",
-    framework: url.searchParams.get("framework") || "",
-    hasPullRequests: url.searchParams.get("hasPullRequests") === "true",
-    searchQuery: url.searchParams.get("searchQuery") || "",
+    category: url.searchParams.get("category") || defaultFilters.category,
+    framework: url.searchParams.get("framework") || defaultFilters.framework,
+    hasPullRequests:
+      url.searchParams.get("hasPullRequests") === "true" ||
+      defaultFilters.hasPullRequests,
+    searchQuery:
+      url.searchParams.get("searchQuery") || defaultFilters.searchQuery,
   }
 
   try {
@@ -122,20 +139,34 @@ export default function Index() {
 
   useEffect(() => {
     const url = new URL(window.location.href)
-    setService((url.searchParams.get("service") || "github") as Service)
-    setMinStars(url.searchParams.get("minStars") || "0")
-    setMaxStars(url.searchParams.get("maxStars") || "1000000")
-    setMinForks(url.searchParams.get("minForks") || "0")
+    setService(
+      (url.searchParams.get("service") || defaultFilters.service) as Service
+    )
+    setMinStars(url.searchParams.get("minStars") || defaultFilters.minStars)
+    setMaxStars(url.searchParams.get("maxStars") || defaultFilters.maxStars)
+    setMinForks(url.searchParams.get("minForks") || defaultFilters.minForks)
 
     const languageParam = url.searchParams.get("language")
-    setLanguage(languageParam ? languageParam.split(" ") : [])
+    setLanguage(
+      languageParam ? languageParam.split(" ") : defaultFilters.language
+    )
 
-    setIsAssigned(url.searchParams.get("isAssigned") === "true")
-    setCategory(url.searchParams.get("category") || "all")
-    setFramework(url.searchParams.get("framework") || "")
-    setHasPullRequests(url.searchParams.get("hasPullRequests") === "true")
-    setShowBookmarked(url.searchParams.get("showBookmarked") === "true")
-    setMobileSearchQuery(url.searchParams.get("searchQuery") || "")
+    setIsAssigned(
+      url.searchParams.get("isAssigned") === "true" || defaultFilters.isAssigned
+    )
+    setCategory(url.searchParams.get("category") || defaultFilters.category)
+    setFramework(url.searchParams.get("framework") || defaultFilters.framework)
+    setHasPullRequests(
+      url.searchParams.get("hasPullRequests") === "true" ||
+        defaultFilters.hasPullRequests
+    )
+    setShowBookmarked(
+      url.searchParams.get("showBookmarked") === "true" ||
+        defaultFilters.showBookmarked
+    )
+    setMobileSearchQuery(
+      url.searchParams.get("searchQuery") || defaultFilters.searchQuery
+    )
   }, [])
 
   useEffect(() => {
@@ -155,18 +186,33 @@ export default function Index() {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
     formData.delete("cursor")
-    if (category === "all") {
-      formData.delete("category")
-    } else {
-      formData.set("category", category)
-    }
-    if (!framework) {
-      formData.delete("framework")
-    }
-    formData.set("hasPullRequests", hasPullRequests.toString())
-    formData.set("showBookmarked", showBookmarked.toString())
-    formData.set("isAssigned", isAssigned.toString())
-    formData.set("language", language.join(" "))
+    formData.delete("search_name_input")
+    Object.entries({
+      service,
+      minStars,
+      maxStars,
+      minForks,
+      searchQuery: mobileSearchQuery,
+      category,
+      framework,
+      hasPullRequests: hasPullRequests.toString(),
+      showBookmarked: showBookmarked.toString(),
+      isAssigned: isAssigned.toString(),
+      language: language.join(" "),
+    }).forEach(([key, value]) => {
+      const typedKey = key as keyof typeof defaultFilters
+      if (key === "language") {
+        if (value !== defaultFilters[typedKey].join(" ")) {
+          formData.set(key, value)
+        } else {
+          formData.delete(key)
+        }
+      } else if (value !== defaultFilters[typedKey].toString()) {
+        formData.set(key, value)
+      } else {
+        formData.delete(key)
+      }
+    })
     setIssues([])
     setIsSearching(true)
     submit(formData, { method: "get" })
@@ -223,17 +269,32 @@ export default function Index() {
   const handleMobileSearch = (e: React.FormEvent) => {
     e.preventDefault()
     const formData = new FormData()
-    formData.set("service", service)
-    formData.set("minStars", minStars)
-    formData.set("maxStars", maxStars)
-    formData.set("minForks", minForks)
-    formData.set("language", language)
-    formData.set("isAssigned", isAssigned.toString())
-    formData.set("category", category)
-    formData.set("framework", framework)
-    formData.set("hasPullRequests", hasPullRequests.toString())
-    formData.set("showBookmarked", showBookmarked.toString())
-    formData.set("searchQuery", mobileSearchQuery)
+    Object.entries({
+      service,
+      minStars,
+      maxStars,
+      minForks,
+      searchQuery: mobileSearchQuery,
+      category,
+      framework,
+      hasPullRequests: hasPullRequests.toString(),
+      showBookmarked: showBookmarked.toString(),
+      isAssigned: isAssigned.toString(),
+      language: language.join(" "),
+    }).forEach(([key, value]) => {
+      const typedKey = key as keyof typeof defaultFilters
+      if (key === "language") {
+        if (value !== defaultFilters[typedKey].join(" ")) {
+          formData.set(key, value)
+        } else {
+          formData.delete(key)
+        }
+      } else if (value !== defaultFilters[typedKey].toString()) {
+        formData.set(key, value)
+      } else {
+        formData.delete(key)
+      }
+    })
     setIssues([])
     setIsSearching(true)
     submit(formData, { method: "get" })
@@ -258,8 +319,8 @@ export default function Index() {
         formData.append(key, value.toString())
       }
     })
-    formData.set('service', service)
-    formData.set('searchQuery', mobileSearchQuery)
+    formData.set("service", service)
+    formData.set("searchQuery", mobileSearchQuery)
     setIssues([])
     setIsSearching(true)
     submit(formData, { method: "get" })
@@ -270,7 +331,7 @@ export default function Index() {
       setIsSearching(false)
     }
   }, [navigation.state])
-  
+
   const t = useTranslatedText()
 
   const renderIssueList = () => (
@@ -297,7 +358,7 @@ export default function Index() {
                 disabled={isSearching}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                {isSearching ? "Loading..." : t('loadMore')}
+                {isSearching ? "Loading..." : t("loadMore")}
               </Button>
             </div>
           )}
@@ -324,7 +385,7 @@ export default function Index() {
               >
                 <Input
                   type="text"
-                  placeholder= {t('search')}
+                  placeholder={t("search")}
                   value={mobileSearchQuery}
                   onChange={(e) => setMobileSearchQuery(e.target.value)}
                   className="flex-grow bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
